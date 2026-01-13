@@ -1,0 +1,14 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="/qss">
+    <file>Dock.qss</file>
+  </qresource>
+  <qresource prefix="/fonts">
+    <file alias="B612-Bold">fonts/B612-Bold.ttf</file>
+  </qresource>
+  <qresource prefix="/images/dock">
+    <file alias="close">images/dock/close.png</file>
+    <file alias="float">images/dock/float.png</file>
+    <file alias="blank">images/dock/blank.png</file>
+  </qresource>
+</RCC>
