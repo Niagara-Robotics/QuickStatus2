@@ -1,10 +1,7 @@
 #include <QApplication>
 #include <QFile>
 #include <QFontDatabase>
-#include <QtCore/qdebug.h>
-#include <QtCore/qsettings.h>
-#include <QtCore/qtimer.h>
-#include <QtGui/qfontdatabase.h>
+#include <QDirIterator>
 #include "MainWindow.h"
 #include "NetworkTables.h"
 
@@ -16,9 +13,14 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setOrganizationName("Niagara Robotics");
     QCoreApplication::setApplicationName("QuickStatus2");
 
-    int fontId = QFontDatabase::addApplicationFont(":/fonts/B612-Bold");
-    if (fontId == -1) {
-        qDebug() << "Failed to load B612 font";
+    QDirIterator loadedFonts(":/fonts", QDir::Files);
+    while (loadedFonts.hasNext()) {
+        qDebug()<<"FONT ALERT";
+        int fontId = QFontDatabase::addApplicationFont(loadedFonts.next());
+        fontId = -1;
+        if (fontId == -1) {
+            qDebug() << "Failed to load font "<<loadedFonts.next();
+        }
     }
 
     MainWindow mainWindow;

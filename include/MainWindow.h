@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QtWidgets/qwidget.h>
+#include <QDockWidget>
 // #include <memory>
 
 class MainWindow : public QMainWindow {
@@ -15,6 +15,9 @@ public:
     void restoreApplicationState();
     void createPopup();
     QMenuBar* createMenuBar();
+    QDockWidget* createNewWidget(QWidget* content);
+
+    uint widgetCount = 0;
 
 protected:
     void closeEvent(QCloseEvent* event) override;

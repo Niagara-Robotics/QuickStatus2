@@ -1,34 +1,26 @@
-#include <QtGui/qaction.h>
-#include <QtWidgets/qmainwindow.h>
-#include <frc/DriverStation.h>
-#include <ntcore.h>
-
 #include <QDockWidget>
 #include <QGridLayout>
 #include <QSettings>
 #include <QMenuBar>
-#include <QFile>
 #include <QTimer>
 
 #include "MainWindow.h"
 #include "BasicWidget.h"
+#include "ShiftWidget.h"
 #include "NTPopup.h"
 
-QDockWidget* CreateNewWidget(std::string name, QWidget* parent) {
-    QDockWidget* dockContainer = new QDockWidget(QString::fromStdString(name), parent);
-    dockContainer->setObjectName(dockContainer->windowTitle());
-    
-    BasicWidget* content = new BasicWidget(dockContainer, "hello, i don't do anything yet!");
+QDockWidget* MainWindow::createNewWidget(QWidget* content) {
+    QDockWidget* dockContainer = new QDockWidget(content->windowTitle(), this);
+    dockContainer->setObjectName("widget" + std::to_string(widgetCount));
     dockContainer->setMinimumSize(150,150);
-    dockContainer->setWidget(content);
     dockContainer->setAllowedAreas(Qt::DockWidgetArea::AllDockWidgetAreas);
     dockContainer->setDockLocation(Qt::DockWidgetArea::TopDockWidgetArea);
-    // dockContainer->setContentsMargins(0,0,5,5);
-    // content->setAutoFillBackground(true);
-    // content->setBackgroundRole(QPalette::ColorRole::Midlight);
+    
     content->setObjectName("dockContent");
     content->setAttribute(Qt::WA_StyledBackground, true);
+    dockContainer->setWidget(content);
 
+    widgetCount += 1;
     return dockContainer;
 }
 
@@ -50,19 +42,20 @@ QMenuBar* MainWindow::createMenuBar() {
 
 MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     setMinimumSize(480,360);
-    QLayout* Layout = new QGridLayout();
-    QWidget* CentralWidget = new QWidget();
-    CentralWidget->setMaximumSize(0,0);
-    CentralWidget->setLayout(Layout);
-    setCentralWidget(CentralWidget);
+    
+    QLayout* dockLayout = new QGridLayout();
+    QWidget* dockContainerWidget = new QWidget();
+    dockContainerWidget->setMaximumSize(0,0);
+    dockContainerWidget->setLayout(dockLayout);
+    setCentralWidget(dockContainerWidget);
     setDockNestingEnabled(true);
     setContentsMargins(10,10,10,0);
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::ColorRole::Mid);
 
-    QDockWidget* test1 = CreateNewWidget("Cool Widget 1", this);
-    QDockWidget* test2 = CreateNewWidget("Awesome Widget 2", this);
-    QDockWidget* test3 = CreateNewWidget("Wicked Widget 3", this);
+    QDockWidget* test1 = createNewWidget(new ShiftWidget());
+    QDockWidget* test2 = createNewWidget(new BasicWidget("yoooo"));
+    QDockWidget* test3 = createNewWidget(new BasicWidget("whats up"));
 
     QMenuBar* menu = MainWindow::createMenuBar();
     setMenuBar(menu);
@@ -77,7 +70,7 @@ void MainWindow::restoreApplicationState()
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray()); // Restore toolbar/dock state
     settings.endGroup();
-    
+
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {

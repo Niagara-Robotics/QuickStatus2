@@ -7,6 +7,6 @@ class BasicWidget : public QWidget {
 
 public:
 
-    explicit BasicWidget(QWidget* parent = nullptr, QString text = "");
+    explicit BasicWidget(QString text = "", QWidget* parent = nullptr);
     ~BasicWidget() {}
 };

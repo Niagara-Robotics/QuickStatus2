@@ -9,6 +9,7 @@ public:
     ~NetworkTables();
     static void UpdateSettings(QVariant address, uint port);
     static void StartClient();
+    static void test();
     
 private:
     static void RefreshServer();

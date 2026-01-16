@@ -25,10 +25,12 @@ qt_add_executable(QuickStatus2
     src/BasicWidget.cpp
     src/NetworkTables.cpp
     src/NTPopup.cpp
+    src/ShiftWidget.cpp
     include/MainWindow.h
     include/BasicWidget.h
     include/NetworkTables.h
     include/NTPopup.h
+    include/ShiftWidget.h
     resources/Styles.qrc
     ${app_icon_macos}
 )
