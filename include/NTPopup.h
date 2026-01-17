@@ -1,5 +1,6 @@
 #pragma once
 
+#include "StatusBar.h"
 #include <QInputDialog>
 
 class NTPopup : public QDialog {
@@ -7,10 +8,12 @@ class NTPopup : public QDialog {
 
 public:
 
-    explicit NTPopup(QWidget* parent = nullptr);
+    explicit NTPopup(QWidget* parent = nullptr, StatusBar* statusBar = nullptr);
     ~NTPopup() {}
     void cancelAction();
     void applyAction();
     QLineEdit* addressInput;
     QLineEdit* portInput;
+
+    StatusBar* reportTo;
 };

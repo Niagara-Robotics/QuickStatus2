@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include <QLabel>
-#include <QtCore/qtimer.h>
+#include <QTimer>
 #include <ntcore.h>
 
 class ShiftWidget : public QWidget {

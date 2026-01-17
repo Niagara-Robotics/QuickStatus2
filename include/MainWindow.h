@@ -13,8 +13,6 @@ public:
     explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow() {}
     void restoreApplicationState();
-    void createPopup();
-    QMenuBar* createMenuBar();
     QDockWidget* createNewWidget(QWidget* content);
 
     uint widgetCount = 0;

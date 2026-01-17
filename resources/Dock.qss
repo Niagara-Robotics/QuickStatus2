@@ -47,6 +47,11 @@ QDockWidget::title {
     padding-right: 32px;
 }
 
+#genericButton {
+    /* background: #3EB24F; */
+    border-radius: 3px;
+}
+
 QDockWidget::close-button, QDockWidget::float-button {
     border: 0px solid transparent;
     padding: 0px;

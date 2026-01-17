@@ -2,19 +2,9 @@
 #include <QGridLayout>
 #include <QPainter>
 
-#include <QPointF>
-#include <QSizeF>
-#include <QtCore/qnamespace.h>
-#include <QtCore/qobject.h>
-#include <QtGui/qpen.h>
-#include <cmath>
 #include <frc/Timer.h>
-#include <string>
 
 #include "ShiftWidget.h"
-#include "ntcore_c.h"
-#include "ntcore_cpp.h"
-#include "ntcore_cpp_types.h"
 
 void ShiftWidget::doThing() {
     timerLabel->setText(QString::number(GetShiftTime())+" "+QString::fromStdString(GetActiveAlliance()));

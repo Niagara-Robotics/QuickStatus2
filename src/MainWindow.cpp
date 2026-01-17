@@ -1,13 +1,10 @@
-#include <QDockWidget>
 #include <QGridLayout>
 #include <QSettings>
-#include <QMenuBar>
-#include <QTimer>
 
 #include "MainWindow.h"
 #include "BasicWidget.h"
 #include "ShiftWidget.h"
-#include "NTPopup.h"
+#include "StatusBar.h"
 
 QDockWidget* MainWindow::createNewWidget(QWidget* content) {
     QDockWidget* dockContainer = new QDockWidget(content->windowTitle(), this);
@@ -24,22 +21,6 @@ QDockWidget* MainWindow::createNewWidget(QWidget* content) {
     return dockContainer;
 }
 
-void MainWindow::createPopup() {
-    NTPopup* popup = new NTPopup(this);
-}
-
-QMenuBar* MainWindow::createMenuBar() {
-    QMenuBar* menuBar = new QMenuBar(this);
-    QMenu* configMenu = menuBar->addMenu("Config");
-
-    QAction* changeNT = new QAction("Set NT Address...", this);
-    changeNT->connect(changeNT, &QAction::triggered, this, &MainWindow::createPopup);
-
-    configMenu->addAction(changeNT);
-    menuBar->setNativeMenuBar(true);
-    return menuBar;
-}
-
 MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     setMinimumSize(480,360);
     
@@ -49,16 +30,16 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     dockContainerWidget->setLayout(dockLayout);
     setCentralWidget(dockContainerWidget);
     setDockNestingEnabled(true);
-    setContentsMargins(10,10,10,0);
+    setContentsMargins(10,10,10,10);
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::ColorRole::Mid);
+
+    StatusBar* statusBar = new StatusBar;
+    setStatusBar(statusBar);
 
     QDockWidget* test1 = createNewWidget(new ShiftWidget());
     QDockWidget* test2 = createNewWidget(new BasicWidget("yoooo"));
     QDockWidget* test3 = createNewWidget(new BasicWidget("whats up"));
-
-    QMenuBar* menu = MainWindow::createMenuBar();
-    setMenuBar(menu);
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
 }

@@ -14,4 +14,7 @@
     <file alias="float">images/dock/float.png</file>
     <file alias="blank">images/dock/blank.png</file>
   </qresource>
+  <qresource prefix="/images">
+    <file alias="edit">images/edit.png</file>
+  </qresource>
 </RCC>

@@ -2,10 +2,11 @@
 #include <QFile>
 #include <QFontDatabase>
 #include <QDirIterator>
-#include "MainWindow.h"
-#include "NetworkTables.h"
 
-NetworkTables networkTables;
+#include "MainWindow.h"
+#include "NTManager.h"
+
+NTManager networkTables;
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
@@ -36,7 +37,7 @@ int main(int argc, char* argv[]) {
     mainWindow.show();
     mainWindow.setWindowTitle("QuickStatus2");
 
-    NetworkTables::StartClient();
+    NTManager::StartClient();
 
     return app.exec();
 }

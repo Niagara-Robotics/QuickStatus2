@@ -2,11 +2,11 @@
 
 #include <QWidget>
 
-class NetworkTables {
+class NTManager {
 public:
 
-    explicit NetworkTables();
-    ~NetworkTables();
+    explicit NTManager();
+    ~NTManager();
     static void UpdateSettings(QVariant address, uint port);
     static void StartClient();
     static void test();
