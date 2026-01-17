@@ -9,8 +9,18 @@ void NTManager::UpdateSettings(QVariant address, uint port) {
     RefreshServer();
 }
 
+void checkSettings() {
+    QSettings settings;
+
+    if (!settings.contains("ntAddress")) settings.setValue("ntAddress", "localhost");
+    if (!settings.contains("ntPort")) settings.setValue("ntPort", "5810");
+}
+
 void NTManager::RefreshServer() {
     nt::Disconnect(nt::GetDefaultInstance());
+
+    checkSettings();
+
     QSettings settings;
     
     nt::SetServer(
