@@ -1,6 +1,7 @@
 #include <QSettings>
 #include <ntcore.h>
 #include "NTManager.h"
+#include "ntcore_c.h"
 
 void NTManager::UpdateSettings(QVariant address, uint port) {
     QSettings settings;
@@ -17,7 +18,9 @@ void checkSettings() {
 }
 
 void NTManager::RefreshServer() {
-    nt::Disconnect(nt::GetDefaultInstance());
+    NT_Inst inst = nt::GetDefaultInstance();
+
+    // nt::Disconnect(nt::GetDefaultInstance());
 
     checkSettings();
 

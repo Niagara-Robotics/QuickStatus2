@@ -2,6 +2,7 @@
 #include <QSettings>
 
 #include "MainWindow.h"
+#include "AutoWidget.h"
 #include "BasicWidget.h"
 #include "ShiftWidget.h"
 #include "StatusBar.h"
@@ -38,7 +39,7 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     setStatusBar(statusBar);
 
     QDockWidget* test1 = createNewWidget(new ShiftWidget());
-    QDockWidget* test2 = createNewWidget(new BasicWidget("yoooo"));
+    QDockWidget* test2 = createNewWidget(new AutoWidget());
     QDockWidget* test3 = createNewWidget(new BasicWidget("whats up"));
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);

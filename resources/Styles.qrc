@@ -16,5 +16,7 @@
   </qresource>
   <qresource prefix="/images">
     <file alias="edit">images/edit.png</file>
+    <file alias="check">images/check.png</file>
+    <file alias="unchecked">images/unchecked.png</file>
   </qresource>
 </RCC>
