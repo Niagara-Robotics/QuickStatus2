@@ -12,7 +12,7 @@ if (NOT EXISTS ${WPILIB_DIR})
 endif()
 set(WPILIB_CPP "${WPILIB_DIR}/cpp")
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Svg)
 
 qt_standard_project_setup()
 
@@ -27,6 +27,7 @@ qt_add_executable(QuickStatus2
     src/NTPopup.cpp
     src/ShiftWidget.cpp
     src/AutoWidget.cpp
+    src/SwerveWidget.cpp
     src/StatusBar.cpp
     include/MainWindow.h
     include/BasicWidget.h
@@ -34,6 +35,7 @@ qt_add_executable(QuickStatus2
     include/NTPopup.h
     include/ShiftWidget.h
     include/AutoWidget.h
+    include/SwerveWidget.h
     include/StatusBar.h
     resources/Styles.qrc
     ${app_icon_macos}
@@ -58,6 +60,7 @@ target_link_directories(QuickStatus2 PRIVATE
 
 target_link_libraries(QuickStatus2 PRIVATE 
     Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Svg
 
     wpiutil
     wpinet

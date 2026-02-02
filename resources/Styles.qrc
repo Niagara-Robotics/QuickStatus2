@@ -19,4 +19,10 @@
     <file alias="check">images/check.png</file>
     <file alias="unchecked">images/unchecked.png</file>
   </qresource>
+  <qresource prefix="/images/swerve">
+    <file alias="base">images/swerve_base.svg</file>
+    <file alias="wheel">images/swerve_wheel.svg</file>
+    <file alias="velocity">images/swerve_velocity.svg</file>
+    <file alias="power">images/swerve_power.svg</file>
+  </qresource>
 </RCC>

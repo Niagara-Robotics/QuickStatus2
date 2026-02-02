@@ -6,6 +6,7 @@
 #include "BasicWidget.h"
 #include "ShiftWidget.h"
 #include "StatusBar.h"
+#include "SwerveWidget.h"
 
 QDockWidget* MainWindow::createNewWidget(QWidget* content) {
     QDockWidget* dockContainer = new QDockWidget(content->windowTitle(), this);
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     QDockWidget* test1 = createNewWidget(new ShiftWidget());
     QDockWidget* test2 = createNewWidget(new AutoWidget());
     QDockWidget* test3 = createNewWidget(new BasicWidget("whats up"));
+    QDockWidget* test4 = createNewWidget(new SwerveWidget());
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
 }
