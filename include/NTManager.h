@@ -8,6 +8,7 @@ public:
     explicit NTManager();
     ~NTManager();
     static void UpdateSettings(QVariant address, uint port);
+    static void checkSettings();
     static void StartClient();
     static void test();
     

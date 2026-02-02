@@ -23,7 +23,9 @@ void StatusBar::updateStatus() {
         connectionText = "Disconnected";
         connectionColour = "#FF3664";
     }
-    connectionAddress = QSettings().value("ntAddress").toString().toStdString();
+    auto connectionType = QSettings().value("ntType").toString();
+    if (connectionType == "Address") connectionAddress = QSettings().value("ntAddress").toString().toStdString();
+    if (connectionType == "Team Number") connectionAddress = QSettings().value("ntTeam").toString().toStdString();
     connectionStatus->setText(QString::fromStdString(fmt::format(
         "NetworkTables: <span style='color: {};'>{}</span> <span style='color: #99FFFFFF;'>({})</span>",
         connectionColour, connectionText, connectionAddress
