@@ -2,8 +2,10 @@
 
 #include <QVBoxLayout>
 #include <QLabel>
-#include <ntcore.h>
+#include <QSettings>
+#include <QPushButton>
 #include <QButtonGroup>
+#include <ntcore.h>
 
 class AutoWidget : public QWidget {
     Q_OBJECT
@@ -17,6 +19,7 @@ public:
     void buttonClicked(std::string value);
     void updateButtons();
     void removeButtons();
+    void openPopup();
     NT_Inst inst;
     NT_Subscriber optionsSub;
     NT_Subscriber activeSub;
@@ -25,4 +28,9 @@ public:
     QButtonGroup buttons;
     QVBoxLayout* layout;
     QLabel* noAutos;
+    QSettings settings;
+    QPushButton editButton;
+    QLabel currentLabel;
+    NT_Listener updateListener;
+    NT_Listener disconnectListener;
 };

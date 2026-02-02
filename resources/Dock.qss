@@ -1,3 +1,23 @@
+QAbstractItemView::item::hover {
+    background: #22FFFFFF;
+}
+QAbstractItemView::item::selected {
+    background: #3EB24F;
+}
+
+#currentLabel {
+    font-size: 16px;
+    font-family: "B612";
+    margin: 7px;
+    margin-left: 28px;
+}
+
+#autoEditButton {
+    margin:8.5px;
+    width: 16px;
+    background: #00FFFFFF;
+}
+
 QRadioButton {
     border:none; /*makes entire button area clickable instead of just text for some reason*/
     border-radius: 23px;
@@ -76,7 +96,7 @@ QDockWidget::title {
     padding-right: 32px;
 }
 
-#genericButton {
+#genericButton, #autoEditButton {
     /* background: #3EB24F; */
     border-radius: 3px;
 }

@@ -1,22 +1,62 @@
-#include <QLabel>
 #include <QRadioButton>
+#include <QTimer>
 #include "AutoWidget.h"
-#include "networktables/NetworkTableInstance.h"
+#include "AutoPopup.h"
 
 void AutoWidget::setupNT() {
+    QString autoName = (settings.value("autoChooser").toString());
+    currentLabel.setText(QString::fromStdString("Current Auto Group: ") + autoName);
+    currentLabel.adjustSize();
+
+    nt::Unsubscribe(optionsSub);
+    nt::Unsubscribe(activeSub);
+    nt::Unsubscribe(defaultSub);
+    nt::Unpublish(selectionPub);
+
     inst = nt::GetDefaultInstance();
+    std::string autoPath = "/SmartDashboard/" + autoName.toStdString() + "/";
     optionsSub = nt::Subscribe(
-        nt::GetTopic(inst, "/SmartDashboard/Auto/options"), 
+        nt::GetTopic(inst,  autoPath + "options"), 
         NT_STRING_ARRAY, "string[]");
     activeSub = nt::Subscribe(
-        nt::GetTopic(inst, "/SmartDashboard/Auto/active"), 
+        nt::GetTopic(inst, autoPath + "active"), 
         NT_STRING, "string");
     defaultSub = nt::Subscribe(
-        nt::GetTopic(inst, "/SmartDashboard/Auto/default"), 
+        nt::GetTopic(inst, autoPath + "default"), 
         NT_STRING, "string");
     selectionPub = nt::Publish(
-        nt::GetTopic(inst, "/SmartDashboard/Auto/selected"),
+        nt::GetTopic(inst, autoPath + "selected"),
         NT_STRING, "string");
+    
+    auto listenerInst = nt::NetworkTableInstance::GetDefault();
+    listenerInst.RemoveListener(updateListener);
+    listenerInst.RemoveListener(disconnectListener);
+
+    updateListener = listenerInst.AddListener(
+        listenerInst.GetTopic(autoPath + "active"),
+        nt::EventFlags::kValueAll,
+        [this](const nt::Event&) {
+            QMetaObject::invokeMethod(
+                this,
+                &AutoWidget::updateButtons,
+                Qt::QueuedConnection
+            );
+        }
+    );
+
+    disconnectListener = listenerInst.AddListener(
+        listenerInst.GetTopic(autoPath + "options"),
+        nt::EventFlags::kUnpublish,
+        [this](const nt::Event&) {
+            QMetaObject::invokeMethod(
+                this,
+                &AutoWidget::updateButtons,
+                Qt::QueuedConnection
+            );
+        }
+    );
+
+    updateButtons();
 }
 
 void AutoWidget::buttonClicked(std::string value) {
@@ -46,47 +86,42 @@ void AutoWidget::updateButtons() {
             buttonClicked(option);
         });
     }
-    if (options.empty()) {
-        noAutos->show();
-    } else {
-        noAutos->hide();
-    }
+    noAutos->setVisible(options.empty());
+}
+
+void AutoWidget::openPopup() {
+    AutoPopup* popup = new AutoPopup(this, this);
 }
 
 AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
-    setWindowTitle("Auto Selector");
+    setWindowTitle("Auto Chooser");
     layout = new QVBoxLayout(this);
-    setupNT();
+    this->setLayout(layout);
+    layout->setContentsMargins(10,20,10,10);
+
+    //ensure value exists by giving it a default
+    if (!settings.value("autoChooser").isValid()) {
+        settings.setValue("autoChooser", "Auto Chooser");
+    }
+    currentLabel.setObjectName("currentLabel");
+    editButton.setIcon(QIcon(":/images/edit"));
+    editButton.setFlat(true);
+    editButton.setObjectName("autoEditButton");
+
+    connect(&editButton, &QPushButton::clicked, this, &AutoWidget::openPopup);
+    QWidget* editContainer = new QWidget(this);
+    editContainer->setFixedHeight(30);
+    currentLabel.setParent(editContainer);
+    editButton.setParent(editContainer);
+    editContainer->adjustSize();
+
     buttons.setParent(this);
     noAutos = new QLabel("No autos detected", this);
     noAutos->setAlignment(Qt::AlignCenter);
     noAutos->setFont(QFont("B612", 40, 900));
     layout->addWidget(noAutos);
-    noAutos->hide();
 
-    updateButtons();
+    // updateButtons();
 
-    auto listenerInst = nt::NetworkTableInstance::GetDefault();
-    NT_Listener updateListener = listenerInst.AddListener(
-        listenerInst.GetTopic("/SmartDashboard/Auto/options"),
-        nt::EventFlags::kValueAll,
-        [this](const nt::Event&) {
-            QMetaObject::invokeMethod(
-                this,
-                &AutoWidget::updateButtons,
-                Qt::QueuedConnection
-            );
-        }
-    );
-    NT_Listener disconnectListener = listenerInst.AddListener(
-        listenerInst.GetTopic("/SmartDashboard/Auto/options"),
-        nt::EventFlags::kUnpublish,
-        [this](const nt::Event&) {
-            QMetaObject::invokeMethod(
-                this,
-                &AutoWidget::updateButtons,
-                Qt::QueuedConnection
-            );
-        }
-    );
+    QTimer::singleShot(0, this, &AutoWidget::setupNT);
 }

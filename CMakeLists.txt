@@ -25,6 +25,7 @@ qt_add_executable(QuickStatus2
     src/BasicWidget.cpp
     src/NTManager.cpp
     src/NTPopup.cpp
+    src/AutoPopup.cpp
     src/ShiftWidget.cpp
     src/AutoWidget.cpp
     src/SwerveWidget.cpp
@@ -33,6 +34,7 @@ qt_add_executable(QuickStatus2
     include/BasicWidget.h
     include/NTManager.h
     include/NTPopup.h
+    include/AutoPopup.h
     include/ShiftWidget.h
     include/AutoWidget.h
     include/SwerveWidget.h
