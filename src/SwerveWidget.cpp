@@ -7,14 +7,25 @@
 #include <frc/kinematics/SwerveModuleState.h>
 #include <networktables/StructArrayTopic.h>
 
-double shortAngleDist(double a0,double a1) {
-    double max = 360;
-    double da = fmod((a1 - a0), max);
-    return fmod(2*da, max - da);
+float NormalizeAngle(float angle) {
+    angle = std::fmod(angle, 360.0f);
+    if (angle < 0) angle += 360.0f;
+    return angle;
 }
 
-double angleLerp(double a0,double a1,double t) {
-    return a0 + shortAngleDist(a0,a1)*t;
+float LerpAngleDegrees(float a, float b, float t) {
+    a = NormalizeAngle(a);
+    b = NormalizeAngle(b);
+    
+    float diff = b - a;
+    
+    // Handle wrap-around
+    if (std::abs(diff) > 180.0f) {
+        if (diff > 0) diff -= 360.0f;
+        else diff += 360.0f;
+    }
+    
+    return NormalizeAngle(a + diff * t);
 }
 
 void flipCanvas(QPainter &painter, QPointF center) {
@@ -29,11 +40,8 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
 
     auto rotArray = nt::GetDoubleArray(baseRotSub, std::span<double>());
     double currentBaseRot = (!rotArray.empty())? rotArray[2]: 0;
-    // currentBaseRot = (currentBaseRot < 0)? 180-currentBaseRot
-    // currentBaseRot = angleLerp(lastBaseRot, currentBaseRot, 0.4);
-    // currentBaseRot = std::lerp(lastBaseRot, currentBaseRot, 0.4); // maybe makes it look less like garbage
+    currentBaseRot = LerpAngleDegrees(lastBaseRot, currentBaseRot, 0.4);// maybe makes it look less like garbage
     lastBaseRot = currentBaseRot;
-    // lastBaseRot += 10;
 
     auto wheelPosStruct = wheelPosStructSub.Get();
     auto wheelVelocityStruct = wheelVelocityStructSub.Get();
@@ -71,7 +79,7 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
             painter.translate(wheelRect.center());
 
             double wheelRot = (!wheelPosStruct.empty())? wheelPosStruct[i].angle.Degrees().value(): 0;
-            // wheelRot = angleLerp(wheelRots[i], fmod(wheelRot, 360), 0.4); // maybe makes it look less like garbage
+            wheelRot = LerpAngleDegrees(wheelRots[i], wheelRot, 0.4); // maybe makes it look less like garbage
             wheelRots[i] = wheelRot;
             painter.rotate(-wheelRot);
 
@@ -97,6 +105,7 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
                 powerRender.render(&painter, powerRect);
                 if (power < 0) flipCanvas(painter, wheelRect.center());
             }
+            // if (velocity != 0 || power != 0) qDebug()<<velocity<<power;
 
             //draw wheel
             wheelRender.render(&painter, wheelRect);
