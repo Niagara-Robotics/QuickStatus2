@@ -1,6 +1,7 @@
 #include <QSettings>
 #include <ntcore.h>
 #include "NTManager.h"
+#include "ntcore_cpp.h"
 
 void NTManager::UpdateSettings(QVariant address, uint port) {
     QSettings settings;
@@ -32,17 +33,20 @@ void NTManager::RefreshServer() {
 
     uint teamNum;
     ss >> teamNum;
+
     if (!ss.fail() && type == "Team Number") {
-        //team number
-        // qDebug()<<"yo"<<teamNum;
-        nt::SetServerTeam(
-            nt::GetDefaultInstance(), 
-            teamNum,
+        std::string rioIP = 
+            "10." + std::to_string(teamNum / 100) + "." + 
+            std::to_string(teamNum % 100) + ".2";
+        nt::SetServer(
+            inst,
+            rioIP.c_str(),
             settings.value("ntPort").toUInt()
         );
+
     } else {
         nt::SetServer(
-            nt::GetDefaultInstance(),
+            inst,
             settings.value("ntAddress").toString().toStdString(),
             settings.value("ntPort").toUInt()
         );
