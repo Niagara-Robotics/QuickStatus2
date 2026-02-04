@@ -49,13 +49,16 @@ QRadioButton::indicator::checked {
 }
 QMainWindow::separator {
     width: 0px;
-    height: 0px;
+    height: 10px;
+    border: 0px solid red;
     /* margin: 10px; */
     /* padding: -10px; */
-    margin-right: 5px;
-    margin-left: 5px;
-    margin-bottom: 8px;
-    margin-top: 3px;
+    /* margin-right: 5px; */
+    /* margin-left: 5px; */
+    /* margin-bottom: 8px; */
+    /* margin-top: 3px; */
+    /* margin-right:25px; */
+    /* padding-top:5px; */
     background: #00FFFFFF;
     
     /* border: 0px solid transparent; */
@@ -64,6 +67,7 @@ QMainWindow::separator {
 
 #statusBar {
     border-radius: 4px;
+    margin-top:10px;
 }
 
 #dockContent, #statusBar {
@@ -71,19 +75,22 @@ QMainWindow::separator {
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
 }
+#dockContent {
+    /* margin-bottom:100px; */
+}
 
 QDockWidget {
-    color: #141414;
-    color: #ffffff;
+    /* color: #141414;
+    color: #ffffff; */
     font-size: 16px;
     font-family: B612;
     font-weight: bold;
     titlebar-close-icon: url(:/images/dock/blank);
     titlebar-normal-icon: url(:/images/dock/blank);
-    /* margin-right: 590px; */
+    /* margin-right: 5px;
     margin-bottom: 5px;
     margin-left: 0px;
-    margin-top: 0px;
+    margin-top: 0px; */
 }
 
 QDockWidget::title {

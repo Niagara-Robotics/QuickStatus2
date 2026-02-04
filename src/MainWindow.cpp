@@ -1,5 +1,6 @@
 #include <QGridLayout>
 #include <QSettings>
+#include <QtCore/qnamespace.h>
 
 #include "MainWindow.h"
 #include "AutoWidget.h"
@@ -14,6 +15,7 @@ QDockWidget* MainWindow::createNewWidget(QWidget* content) {
     dockContainer->setMinimumSize(150,150);
     dockContainer->setAllowedAreas(Qt::DockWidgetArea::AllDockWidgetAreas);
     dockContainer->setDockLocation(Qt::DockWidgetArea::TopDockWidgetArea);
+    dockContainer->setContentsMargins(0,0,0,0);
     
     content->setObjectName("dockContent");
     content->setAttribute(Qt::WA_StyledBackground, true);
@@ -28,15 +30,17 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     
     QLayout* dockLayout = new QGridLayout();
     QWidget* dockContainerWidget = new QWidget();
+    dockContainerWidget->setObjectName("containerTest");
     dockContainerWidget->setMaximumSize(0,0);
     dockContainerWidget->setLayout(dockLayout);
-    setCentralWidget(dockContainerWidget);
+    dockLayout->setContentsMargins(0,0,0,0);
+    // setCentralWidget(dockContainerWidget);
     setDockNestingEnabled(true);
     setContentsMargins(10,10,10,10);
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::ColorRole::Mid);
 
-    StatusBar* statusBar = new StatusBar;
+    StatusBar* statusBar = new StatusBar(this);
     setStatusBar(statusBar);
 
     QDockWidget* test1 = createNewWidget(new ShiftWidget());

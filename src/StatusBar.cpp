@@ -59,8 +59,8 @@ void StatusBar::openPopup() {
 StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     // NTPopup* popup = new NTPopup(this, this);
     setObjectName("statusBar");
-    setFixedHeight(30);
-    setContentsMargins(5,0,5,0);
+    setFixedHeight(40);
+    setContentsMargins(5,10,5,0);
     QFont b612("B612", 16);
     connectionStatus->setFont(b612);
     
