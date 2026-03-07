@@ -20,6 +20,7 @@ public:
     nt::StructArraySubscriber<frc::SwerveModulePosition> wheelPosStructSub;
     nt::StructArraySubscriber<frc::SwerveModuleState> wheelVelocityStructSub;
     nt::StructArraySubscriber<frc::SwerveModuleState> wheelPowerStructSub;
+    NT_Subscriber alignStatusSub;
     double wheelRots[4];
     double lastBaseRot;
     QSvgRenderer baseRender = QSvgRenderer(QString::fromStdString(":/images/swerve/base"));

@@ -22,7 +22,7 @@ qt_add_executable(QuickStatus2
     MACOSX_BUNDLE
     src/Main.cpp
     src/MainWindow.cpp
-    src/BasicWidget.cpp
+    src/FuelWidget.cpp
     src/NTManager.cpp
     src/NTPopup.cpp
     src/AutoPopup.cpp
@@ -31,7 +31,7 @@ qt_add_executable(QuickStatus2
     src/SwerveWidget.cpp
     src/StatusBar.cpp
     include/MainWindow.h
-    include/BasicWidget.h
+    include/FuelWidget.h
     include/NTManager.h
     include/NTPopup.h
     include/AutoPopup.h

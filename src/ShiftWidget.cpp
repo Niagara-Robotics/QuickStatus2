@@ -69,7 +69,7 @@ double ShiftWidget::GetShiftTimeMax() {
 void ShiftWidget::SetupNT() {
     inst = nt::GetDefaultInstance();
     robotStateSub = nt::Subscribe(nt::GetTopic(
-        inst, "/QuickStatus2/RobotState"), NT_STRING, "string"
+        inst, "/SmartDashboard/robotState"), NT_STRING, "string"
     );
     gameMessageSub = nt::Subscribe(nt::GetTopic(
         inst, "/FMSInfo/GameSpecificMessage"), NT_STRING, "string"
@@ -92,11 +92,14 @@ double ShiftWidget::GetStartTime() {
 }
 
 void ShiftWidget::paintEvent(QPaintEvent* event) {
-    QPainter qp(this);
-    qp.setRenderHint(QPainter::Antialiasing);
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::LosslessImageRendering);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    
     double shiftTime = GetShiftTime();
     double blinkClock = frc::GetTime().value();
-    double blinkSpeed = 1.7;
+    double blinkSpeed = 3;
     bool isBlinkVisible = (fmod(blinkClock*blinkSpeed, 1) > 0.5);
     std::string activeAlliance = GetActiveAlliance();
     std::string currentAlliance = GetCurrentAlliance();
@@ -118,14 +121,14 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     }
 
     QPen pen(QColor("#FFFFFF"), 32, Qt::SolidLine, Qt::RoundCap);
-    qp.setPen(pen);
+    painter.setPen(pen);
     QRect activeRect = rect();
     activeRect.setTop(-pointSize*2);
     QPoint center = rect().center();
-    qp.setFont(QFont("B612", pointSize*0.4, 900));
-    if (activeAlliance == "A" || (activeAlliance == currentAlliance && activeAlliance != "")) qp.drawText(activeRect, Qt::AlignCenter, "ACTIVE");
+    painter.setFont(QFont("B612", pointSize*0.4, 900));
+    if (activeAlliance == "A" || (activeAlliance == currentAlliance && activeAlliance != "")) painter.drawText(activeRect, Qt::AlignCenter, "ACTIVE");
     activeRect.setTop(pointSize*2);
-    qp.drawText(activeRect, Qt::AlignCenter, QString::fromStdString(GetCurrentShift()));
+    painter.drawText(activeRect, Qt::AlignCenter, QString::fromStdString(GetCurrentShift()));
     
 
     int arcWidth = timerLabel->height() * 0.8;
@@ -139,8 +142,8 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
 
     pen.setWidth(40);
     pen.setColor(QColor("#22FFFFFF"));
-    qp.setPen(pen);
-    qp.drawArc(boundingRect, 0, 5760);
+    painter.setPen(pen);
+    painter.drawArc(boundingRect, 0, 5760);
 
     std::string allianceColour = (activeAlliance == "R")? "#e22e43": "#3bb1ff";
     allianceColour = (activeAlliance == "")? "#77FFFFFF": allianceColour;
@@ -152,14 +155,14 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     if (shiftTime != -1) {
         if (isBlinkVisible && activeAlliance == currentAlliance && activeAlliance != "") {
             pen.setColor("#FFFFFF");
-            qp.setPen(pen);
-            qp.drawArc(boundingRect, startAngle * 16, spanAngle);
+            painter.setPen(pen);
+            painter.drawArc(boundingRect, startAngle * 16, spanAngle);
         }
     
         pen.setWidth(32);
         pen.setColor(QString::fromStdString(allianceColour));
-        qp.setPen(pen);
-        qp.drawArc(boundingRect, startAngle * 16, spanAngle);
+        painter.setPen(pen);
+        painter.drawArc(boundingRect, startAngle * 16, spanAngle);
     }
 }
 

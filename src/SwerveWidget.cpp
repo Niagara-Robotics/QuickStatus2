@@ -1,6 +1,12 @@
 #include "SwerveWidget.h"
+#include "frc/Timer.h"
+#include "ntcore_c.h"
+#include "ntcore_cpp_types.h"
 #include <QSvgRenderer>
 #include <QPainter>
+#include <QtCore/qnamespace.h>
+#include <QtGui/qcolor.h>
+#include <QtGui/qicon.h>
 #include <ntcore.h>
 
 #include <frc/kinematics/SwerveModulePosition.h>
@@ -34,9 +40,29 @@ void flipCanvas(QPainter &painter, QPointF center) {
     painter.translate(-center);
 }
 
+QIcon createIconFromSvg(const QString& svgFilePath, const QColor& color, QSize size) {
+    QSvgRenderer renderer;
+    renderer.load(svgFilePath);
+
+    QPixmap pixmap(size);
+    pixmap.fill(Qt::transparent); // Start with a transparent canvas
+
+    QPainter painter(&pixmap);
+    renderer.render(&painter); // Render the SVG (destination)
+
+    // Apply the new color as the source, using the SVG's alpha channel
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn); 
+    painter.fillRect(pixmap.rect(), QBrush(color)); // Fill with the desired color
+
+    painter.end();
+    return QIcon(pixmap);
+}
+
 void SwerveWidget::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::LosslessImageRendering);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
     auto rotArray = nt::GetDoubleArray(baseRotSub, std::span<double>());
     double currentBaseRot = (!rotArray.empty())? rotArray[2]: 0;
@@ -47,8 +73,22 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
     auto wheelVelocityStruct = wheelVelocityStructSub.Get();
     auto wheelPowerStruct = wheelPowerStructSub.Get();
 
+    int alignStatus = nt::GetInteger(alignStatusSub, 0);
+    QColor alignColour;
+    switch (alignStatus) {
+        case 1:
+            alignColour = QColor("#FFC600");
+            break;
+        case 2:
+            alignColour = QColor("#44da5b");
+            break;
+        default:
+            alignColour = QColor("#FFFFFF");
+            break;
+    };
+
     int baseSize = height()*0.5;
-    QRectF baseRect = rect();
+    QRect baseRect = rect();
     baseRect.setSize(QSize(baseSize,baseSize));
     baseRect.moveCenter(rect().center());
     
@@ -63,7 +103,8 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
 
         if (rotArray.empty()) painter.setOpacity(0.5);
         else painter.setOpacity(1);
-        baseRender.render(&painter, baseRect);
+        QIcon baseIcon = createIconFromSvg(":/images/swerve/base", alignColour, baseRect.size()*2);
+        baseIcon.paint(&painter, baseRect);
 
         if (wheelPosStruct.empty()) painter.setOpacity(0.5);
         else painter.setOpacity(1);
@@ -71,7 +112,7 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
         for (int i=0; i < 4; i++) { //draw 4 wheels
             painter.save();
 
-            wheelRect.moveCenter(QPointF(
+            wheelRect.moveCenter(QPoint(
                 baseRect.topLeft().x() + baseSize * (i % 2), // every other wheel, switch l/r
                 baseRect.topLeft().y() + baseSize * (i/2 % 2) // every 2 wheels, switch u/d
             ));
@@ -108,7 +149,9 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
             // if (velocity != 0 || power != 0) qDebug()<<velocity<<power;
 
             //draw wheel
-            wheelRender.render(&painter, wheelRect);
+            // wheelRender.render(&painter, wheelRect);
+            QIcon wheelIcon = createIconFromSvg(":/images/swerve/wheel", Qt::white, wheelRect.toRect().size()*2);
+            wheelIcon.paint(&painter, wheelRect.toRect());
             painter.restore();
         }
         painter.resetTransform();
@@ -133,6 +176,9 @@ SwerveWidget::SwerveWidget(QWidget* parent):QWidget(parent) {
     wheelPowerStructSub = altInst.GetStructArrayTopic<frc::SwerveModuleState>(
         "/DriveState/ModuleTargets"
     ).Subscribe({});
+    alignStatusSub = nt::Subscribe(nt::GetTopic(
+        inst, "/SmartDashboard/alignStatus"), NT_INTEGER, "int"
+    );
 
     refreshTimer.setParent(this);
     refreshTimer.setTimerType(Qt::PreciseTimer);

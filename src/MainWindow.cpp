@@ -4,7 +4,7 @@
 
 #include "MainWindow.h"
 #include "AutoWidget.h"
-#include "BasicWidget.h"
+#include "FuelWidget.h"
 #include "ShiftWidget.h"
 #include "StatusBar.h"
 #include "SwerveWidget.h"
@@ -13,6 +13,7 @@ QDockWidget* MainWindow::createNewWidget(QWidget* content) {
     QDockWidget* dockContainer = new QDockWidget(content->windowTitle(), this);
     dockContainer->setObjectName("widget" + std::to_string(widgetCount));
     dockContainer->setMinimumSize(150,150);
+    content->setMinimumSize(150,150);
     dockContainer->setAllowedAreas(Qt::DockWidgetArea::AllDockWidgetAreas);
     dockContainer->setDockLocation(Qt::DockWidgetArea::TopDockWidgetArea);
     dockContainer->setContentsMargins(0,0,0,0);
@@ -26,7 +27,7 @@ QDockWidget* MainWindow::createNewWidget(QWidget* content) {
 }
 
 MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
-    setMinimumSize(480,360);
+    setMinimumSize(480,480);
     
     QLayout* dockLayout = new QGridLayout();
     QWidget* dockContainerWidget = new QWidget();
@@ -45,7 +46,7 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
 
     QDockWidget* test1 = createNewWidget(new ShiftWidget());
     QDockWidget* test2 = createNewWidget(new AutoWidget());
-    QDockWidget* test3 = createNewWidget(new BasicWidget("whats up"));
+    QDockWidget* test3 = createNewWidget(new FuelWidget());
     QDockWidget* test4 = createNewWidget(new SwerveWidget());
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
