@@ -1,11 +1,9 @@
 #pragma once
 
-#include "frc/kinematics/SwerveModuleState.h"
-#include <frc/kinematics/SwerveModulePosition.h>
-#include <networktables/StructArrayTopic.h>
 #include <QWidget>
 #include <QTimer>
 #include <QSvgRenderer>
+#include <ntcore.h>
 
 class ShooterWidget : public QWidget {
     Q_OBJECT
@@ -15,13 +13,14 @@ public:
     explicit ShooterWidget(QWidget* parent = nullptr);
     ~ShooterWidget() {}
     NT_Inst inst;
-    nt::NetworkTableInstance altInst;
     NT_Subscriber leftShooterStatusSub;
     NT_Subscriber rightShooterStatusSub;
     NT_Subscriber leftFeederStatusSub;
     NT_Subscriber rightFeederStatusSub;
     NT_Subscriber leftShooterRPSSub;
     NT_Subscriber rightShooterRPSSub;
+    NT_Subscriber leftFeederRPSSub;
+    NT_Subscriber rightFeederRPSSub;
     NT_Subscriber targetRPSSub;
     NT_Subscriber manualShooterRPSSub;
     NT_Subscriber driverAssistedModeSub;

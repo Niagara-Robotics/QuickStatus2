@@ -1,13 +1,14 @@
 #include "ShooterWidget.h"
 #include "Constants.h"
+#include "frc/Timer.h"
 #include "ntcore_c.h"
 #include "ntcore_cpp_types.h"
 #include <QPainter>
 #include <QtCore/qnamespace.h>
 #include <QtGui/qcolor.h>
+#include <QtGui/qtransform.h>
 #include <QtSvg/qsvgrenderer.h>
 #include <QtWidgets/qlayoutitem.h>
-#include <string>
 
 QIcon ShooterWidget::createIconFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size) {
     QPixmap pixmap(size);
@@ -36,9 +37,12 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     int rightFeederStatus = nt::GetInteger(rightFeederStatusSub, -1);
     
     double targetRPS = nt::GetDouble(targetRPSSub, -1);
-    double leftShooterRPS = nt::GetDouble(leftShooterRPSSub, 40);
+    double leftShooterRPS = nt::GetDouble(leftShooterRPSSub, -1);
     double rightShooterRPS = nt::GetDouble(rightShooterRPSSub, -1);
     double manualShooterRPS = nt::GetDouble(manualShooterRPSSub, -1);
+
+    double leftFeederRPS = nt::GetDouble(leftFeederRPSSub, -1);
+    double rightFeederRPS = nt::GetDouble(rightFeederRPSSub, -1);
 
     bool driverAssistedMode = nt::GetBoolean(driverAssistedModeSub, true);
 
@@ -69,15 +73,15 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
     double shooterDist = textSize*1;
     double feederDist = textSize*1.1;
-    QRect shooterRect = rect();
+    QRectF shooterRect = rect();
     double shooterSizeVal = textSize;
-    QSize shooterSize = QSize(shooterSizeVal,shooterSizeVal);
+    QSizeF shooterSize = QSize(shooterSizeVal,shooterSizeVal);
     shooterRect.setSize(shooterSize);
     shooterRect.moveCenter(rect().center());
     shooterRect.adjust(-shooterDist*1.2, 0,-shooterDist*1.2,0);
 
-    QRect outlineRect = shooterRect;
-    QSize outlineSize = shooterSize*2.5;
+    QRectF outlineRect = shooterRect;
+    QSizeF outlineSize = shooterSize*2.5;
     outlineRect.setSize(outlineSize);
     outlineRect.adjust(-shooterSizeVal*0.5,0,-shooterSizeVal*0.5,0);
 
@@ -86,28 +90,43 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     for (int i=0; i<2; i++) {
         int shooterStatus = ((i==0)? leftShooterStatus: rightShooterStatus);
         int shooterRPS = ((i==0)? leftShooterRPS: rightShooterRPS);
+        createIconFromSvg(outline, "#FFFFFF", outlineSize.toSize()*2).paint(&painter, outlineRect.toRect());
+        
         QColor shooterColour = getStatusColour(shooterStatus);
         shooterColour.setAlpha((shooterStatus == -1)? 150: 255);
-        createIconFromSvg(outline, shooterColour, outlineSize*2).paint(&painter, outlineRect);
-
         // render shooter
-        createIconFromSvg(wheel_10, shooterColour, shooterSize*2).paint(&painter, shooterRect);
-        painter.drawText(shooterRect, Qt::AlignCenter, (shooterRPS == -1)? "—": QString::number(shooterRPS));
+
+        if (shooterRPS != -1) {
+            painter.translate(shooterRect.center());
+            painter.rotate(-shooterRPS*frc::GetTime().value()*5);
+            painter.translate(-shooterRect.center());
+        }
+
+        createIconFromSvg(wheel_10, shooterColour, shooterSize.toSize()*2).paint(&painter, shooterRect.toRect());
+        painter.resetTransform();
         
+        painter.drawText(shooterRect, Qt::AlignCenter, (shooterRPS == -1)? "—": QString::number(shooterRPS));
         // render feeder
         int feederStatus = ((i==0)? leftFeederStatus: rightFeederStatus);
-        QColor feederColour = getStatusColour(shooterStatus);
-        feederColour.setAlpha((feederStatus == -1)? 150: 255);
+        int feederRPS = ((i==0)? leftFeederRPS: rightFeederRPS);
 
-        QRect feederRect = shooterRect.adjusted(0,feederDist,0,feederDist);
-        QSize feederSize = shooterSize*0.7;
-        QPoint feederCenter = feederRect.center();
+        QColor feederColour = getStatusColour(feederStatus);
+        feederColour.setAlpha((feederStatus == -1)? 150: 255);
+        
+        QRectF feederRect = shooterRect.adjusted(0,feederDist,0,feederDist);
+        QSizeF feederSize = shooterSize*0.7;
+        QPointF feederCenter = feederRect.center();
         feederRect.setSize(feederSize);
         feederRect.moveCenter(feederCenter);
-        
-        QColor().setAlpha((((i==0)? leftFeederStatus: rightFeederStatus) == -1)? 150: 255);
-        createIconFromSvg(wheel_8, feederColour, shooterSize*2).paint(&painter, feederRect);
-        
+
+        if (feederRPS != -1) {
+            painter.translate(feederRect.center());
+            painter.rotate(-feederRPS*frc::GetTime().value()*5);
+            painter.translate(-feederRect.center());
+        }
+
+        createIconFromSvg(wheel_8, feederColour, shooterSize.toSize()*2).paint(&painter, feederRect.toRect());
+        painter.resetTransform();
         shooterRect.adjust(shooterDist*2,0,shooterDist*2,0);
         outlineRect.adjust(shooterDist*2,0,shooterDist*2,0);
     }
@@ -137,6 +156,12 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
     );
     rightShooterRPSSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/Shooters/Right RPS"), NT_DOUBLE, "double"
+    );
+    leftFeederRPSSub = nt::Subscribe(nt::GetTopic(
+        inst, "/SmartDashboard/leftFeederCurrentSpeed"), NT_DOUBLE, "double"
+    );
+    rightFeederRPSSub = nt::Subscribe(nt::GetTopic(
+        inst, "/SmartDashboard/rightFeederCurrentSpeed"), NT_DOUBLE, "double"
     );
     targetRPSSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/Shooters/Target RPS"), NT_DOUBLE, "double"
