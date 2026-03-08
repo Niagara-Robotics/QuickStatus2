@@ -6,6 +6,7 @@
 #include "AutoWidget.h"
 #include "FuelWidget.h"
 #include "ShiftWidget.h"
+#include "ShooterWidget.h"
 #include "StatusBar.h"
 #include "SwerveWidget.h"
 
@@ -44,10 +45,11 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     StatusBar* statusBar = new StatusBar(this);
     setStatusBar(statusBar);
 
-    QDockWidget* test1 = createNewWidget(new ShiftWidget());
-    QDockWidget* test2 = createNewWidget(new AutoWidget());
-    QDockWidget* test3 = createNewWidget(new FuelWidget());
-    QDockWidget* test4 = createNewWidget(new SwerveWidget());
+    QDockWidget* shiftWidget = createNewWidget(new ShiftWidget());
+    QDockWidget* autoWidget = createNewWidget(new AutoWidget());
+    QDockWidget* fuelWidget = createNewWidget(new FuelWidget());
+    QDockWidget* swerveWidget = createNewWidget(new SwerveWidget());
+    QDockWidget* shooterWidget = createNewWidget(new ShooterWidget());
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
 }

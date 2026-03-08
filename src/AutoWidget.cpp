@@ -104,7 +104,7 @@ AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
         settings.setValue("autoChooser", "Auto Chooser");
     }
     currentLabel.setObjectName("currentLabel");
-    editButton.setIcon(QIcon(":/images/edit"));
+    editButton.setIcon(QIcon(":/images/auto/edit"));
     editButton.setFlat(true);
     editButton.setObjectName("autoEditButton");
 

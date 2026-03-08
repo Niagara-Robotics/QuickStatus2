@@ -76,5 +76,5 @@ FuelWidget::FuelWidget(QWidget* parent):QWidget(parent) {
     refreshTimer.setParent(this);
     refreshTimer.setTimerType(Qt::PreciseTimer);
     connect(&refreshTimer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
-    refreshTimer.start(100);
+    refreshTimer.start(150);
 }

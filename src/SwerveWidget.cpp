@@ -1,17 +1,7 @@
 #include "SwerveWidget.h"
-#include "frc/Timer.h"
-#include "ntcore_c.h"
-#include "ntcore_cpp_types.h"
-#include <QSvgRenderer>
+#include "Constants.h"
 #include <QPainter>
-#include <QtCore/qnamespace.h>
-#include <QtGui/qcolor.h>
-#include <QtGui/qicon.h>
-#include <ntcore.h>
-
-#include <frc/kinematics/SwerveModulePosition.h>
-#include <frc/kinematics/SwerveModuleState.h>
-#include <networktables/StructArrayTopic.h>
+#include <QtSvg/qsvgrenderer.h>
 
 float NormalizeAngle(float angle) {
     angle = std::fmod(angle, 360.0f);
@@ -40,10 +30,7 @@ void flipCanvas(QPainter &painter, QPointF center) {
     painter.translate(-center);
 }
 
-QIcon createIconFromSvg(const QString& svgFilePath, const QColor& color, QSize size) {
-    QSvgRenderer renderer;
-    renderer.load(svgFilePath);
-
+QIcon SwerveWidget::createIconFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size) {
     QPixmap pixmap(size);
     pixmap.fill(Qt::transparent); // Start with a transparent canvas
 
@@ -77,13 +64,13 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
     QColor alignColour;
     switch (alignStatus) {
         case 1:
-            alignColour = QColor("#FFC600");
+            alignColour = Constants::IN_PROGRESS;
             break;
         case 2:
-            alignColour = QColor("#44da5b");
+            alignColour = Constants::AT_TARGET;
             break;
         default:
-            alignColour = QColor("#FFFFFF");
+            alignColour = Constants::NO_STATUS;
             break;
     };
 
@@ -103,7 +90,7 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
 
         if (rotArray.empty()) painter.setOpacity(0.5);
         else painter.setOpacity(1);
-        QIcon baseIcon = createIconFromSvg(":/images/swerve/base", alignColour, baseRect.size()*2);
+        QIcon baseIcon = createIconFromSvg(baseRender, alignColour, baseRect.size()*2);
         baseIcon.paint(&painter, baseRect);
 
         if (wheelPosStruct.empty()) painter.setOpacity(0.5);
@@ -150,7 +137,7 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
 
             //draw wheel
             // wheelRender.render(&painter, wheelRect);
-            QIcon wheelIcon = createIconFromSvg(":/images/swerve/wheel", Qt::white, wheelRect.toRect().size()*2);
+            QIcon wheelIcon = createIconFromSvg(wheelRender, Qt::white, wheelRect.toRect().size()*2);
             wheelIcon.paint(&painter, wheelRect.toRect());
             painter.restore();
         }

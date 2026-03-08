@@ -41,11 +41,11 @@ QRadioButton::indicator {
     height: 40px;
     background: #00FFFFFF;
     margin-right: 3px;
-    image: url(":/images/unchecked");
+    image: url(":/images/auto/unchecked");
 }
 QRadioButton::indicator::checked {
     /* background: #3EB24F; */
-    image: url(":/images/check");
+    image: url(":/images/auto/check");
 }
 QMainWindow::separator {
     width: 0px;

@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     }
 
     MainWindow mainWindow;
-    QFile styleFile(":/qss/Dock.qss");
+    QFile styleFile(":/qss/stylesheet.qss");
     if (styleFile.open(QFile::ReadOnly | QFile::Text))
     {
         // qDebug() << "Resources found";
