@@ -6,11 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTORCC ON)
 
-set(WPILIB_DIR "$ENV{PUBLIC}/wpilib/2026") #windows
-if (NOT EXISTS ${WPILIB_DIR})
-    set(WPILIB_DIR "$ENV{HOME}/wpilib/2026") #mac
-endif()
-set(WPILIB_CPP "${WPILIB_DIR}/cpp")
+set(WPILIB_CPP "${CMAKE_CURRENT_SOURCE_DIR}/wpicpp")
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Svg)
 
