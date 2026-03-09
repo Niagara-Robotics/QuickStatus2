@@ -62,7 +62,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     painter.setFont(QFont("B612", textSize, 900));
     painter.drawText(rpsRect, Qt::AlignCenter, rpsText);
 
-    QRect targetRect = QFontMetrics(painter.font()).boundingRect(rpsText);
+    QRect targetRect = QFontMetrics(painter.font()).boundingRect("40 RPS");
     targetRect.moveCenter(rpsRect.center());
     targetRect.adjust(0, -textSize*0.3, 0, 0);
 
@@ -170,7 +170,7 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
         inst, "/SmartDashboard/manualShooterRPS"), NT_DOUBLE, "double"
     );
     driverAssistedModeSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/driverAssistedMode"), NT_BOOLEAN, "bool"
+        inst, "/SmartDashboard/driverAssistedMode"), NT_BOOLEAN, "boolean"
     );
 
     refreshTimer.setParent(this);

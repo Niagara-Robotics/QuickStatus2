@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QPushButton>
 #include <QButtonGroup>
+#include <QtWidgets/qwidget.h>
 #include <ntcore.h>
 
 class AutoWidget : public QWidget {
@@ -33,4 +34,6 @@ public:
     QLabel currentLabel;
     NT_Listener updateListener;
     NT_Listener disconnectListener;
+protected:
+    void resizeEvent(QResizeEvent* event);
 };

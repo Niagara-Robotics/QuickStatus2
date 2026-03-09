@@ -4,6 +4,7 @@
 
 #include "MainWindow.h"
 #include "AutoWidget.h"
+#include "ControlModeWidget.h"
 #include "FuelWidget.h"
 #include "ShiftWidget.h"
 #include "ShooterWidget.h"
@@ -50,6 +51,7 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     QDockWidget* fuelWidget = createNewWidget(new FuelWidget());
     QDockWidget* swerveWidget = createNewWidget(new SwerveWidget());
     QDockWidget* shooterWidget = createNewWidget(new ShooterWidget());
+    QDockWidget* controlModeWidget = createNewWidget(new ControlModeWidget());
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
 }

@@ -1,5 +1,6 @@
 #include <QRadioButton>
 #include <QTimer>
+#include <QtWidgets/qwidget.h>
 #include "AutoWidget.h"
 #include "AutoPopup.h"
 
@@ -93,6 +94,10 @@ void AutoWidget::openPopup() {
     AutoPopup* popup = new AutoPopup(this, this);
 }
 
+void AutoWidget::resizeEvent(QResizeEvent* event) {
+    noAutos->setFont(QFont("B612", rect().width()*0.2, 900));
+}
+
 AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
     setWindowTitle("Auto Chooser");
     layout = new QVBoxLayout(this);
@@ -116,7 +121,7 @@ AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
     editContainer->adjustSize();
 
     buttons.setParent(this);
-    noAutos = new QLabel("No autos detected", this);
+    noAutos = new QLabel("No autos\ndetected", this);
     noAutos->setAlignment(Qt::AlignCenter);
     noAutos->setFont(QFont("B612", 40, 900));
     layout->addWidget(noAutos);

@@ -30,6 +30,7 @@ qt_add_executable(QuickStatus2
     src/AutoWidget.cpp
     src/SwerveWidget.cpp
     src/ShooterWidget.cpp
+    src/ControlModeWidget.cpp
     src/StatusBar.cpp
     include/MainWindow.h
     include/FuelWidget.h
@@ -40,6 +41,7 @@ qt_add_executable(QuickStatus2
     include/AutoWidget.h
     include/SwerveWidget.h
     include/ShooterWidget.h
+    include/ControlModeWidget.h
     include/StatusBar.h
     resources/resources.qrc
     ${app_icon_macos}
