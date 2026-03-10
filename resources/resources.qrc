@@ -1,33 +1,35 @@
-<!DOCTYPE RCC>
 <RCC version="1.0">
-  <qresource prefix="/qss">
-    <file>stylesheet.qss</file>
-  </qresource>
-  <qresource prefix="/fonts">
-    <file alias="B612-Bold">fonts/B612-Bold.ttf</file>
-    <file alias="B612Mono-Bold">fonts/B612Mono-Bold.ttf</file>
-    <file alias="B612-Regular">fonts/B612-Regular.ttf</file>
-    <file alias="B612Mono-Regular">fonts/B612Mono-Regular.ttf</file>
-  </qresource>
-  <qresource prefix="/images/dock">
-    <file alias="close">images/dock/close.png</file>
-    <file alias="float">images/dock/float.png</file>
-    <file alias="blank">images/dock/blank.png</file>
-  </qresource>
-  <qresource prefix="/images/auto">
-    <file alias="edit">images/auto/edit.png</file>
-    <file alias="check">images/auto/check.png</file>
-    <file alias="unchecked">images/auto/unchecked.png</file>
-  </qresource>
-  <qresource prefix="/images/swerve">
-    <file alias="wheel">images/swerve/swerve_wheel.svg</file>
-    <file alias="velocity">images/swerve/swerve_velocity.svg</file>
-    <file alias="power">images/swerve/swerve_power.svg</file>
-    <file alias="base">images/swerve/swerve_base.svg</file>
-  </qresource>
-  <qresource prefix="/images/shooter">
-    <file alias="outline">images/shooter/outline.svg</file>
-    <file alias="wheel_10">images/shooter/wheel_10.svg</file>
-    <file alias="wheel_8">images/shooter/wheel_8.svg</file>
-  </qresource>
+    <qresource prefix="/qss">
+        <file>stylesheet.qss</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file alias="B612-Bold">fonts/B612-Bold.ttf</file>
+        <file alias="B612Mono-Bold">fonts/B612Mono-Bold.ttf</file>
+        <file alias="B612-Regular">fonts/B612-Regular.ttf</file>
+        <file alias="B612Mono-Regular">fonts/B612Mono-Regular.ttf</file>
+    </qresource>
+    <qresource prefix="/images/dock">
+        <file alias="close">images/dock/close.png</file>
+        <file alias="float">images/dock/float.png</file>
+        <file alias="blank">images/dock/blank.png</file>
+    </qresource>
+    <qresource prefix="/images/auto">
+        <file alias="edit">images/auto/edit.png</file>
+        <file alias="check">images/auto/check.png</file>
+        <file alias="unchecked">images/auto/unchecked.png</file>
+    </qresource>
+    <qresource prefix="/images/swerve">
+        <file alias="wheel">images/swerve/swerve_wheel.svg</file>
+        <file alias="velocity">images/swerve/swerve_velocity.svg</file>
+        <file alias="power">images/swerve/swerve_power.svg</file>
+        <file alias="base">images/swerve/swerve_base.svg</file>
+    </qresource>
+    <qresource prefix="/images/shooter">
+        <file alias="outline">images/shooter/outline.svg</file>
+        <file alias="wheel_10">images/shooter/wheel_10.svg</file>
+        <file alias="wheel_8">images/shooter/wheel_8.svg</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>icon.ico</file>
+    </qresource>
 </RCC>
