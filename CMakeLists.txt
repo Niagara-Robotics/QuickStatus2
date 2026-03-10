@@ -43,11 +43,9 @@ qt_add_executable(QuickStatus2
     ${app_icon_macos}
 )
 
-target_include_directories(QuickStatus2 PRIVATE include)
-target_include_directories(QuickStatus2 PRIVATE src)
+target_include_directories(QuickStatus2 PRIVATE include src)
 
 target_include_directories(QuickStatus2 PRIVATE
-    # ${WPILIB_CPP}/include
     ${WPILIB_CPP}/include/wpimath
     ${WPILIB_CPP}/include/wpilibc
     ${WPILIB_CPP}/include/wpiutil
@@ -56,18 +54,14 @@ target_include_directories(QuickStatus2 PRIVATE
     ${WPILIB_CPP}/include/ntcore
 )
 
-target_link_directories(QuickStatus2 PRIVATE
-    ${WPILIB_CPP}/lib
-)
+target_link_directories(QuickStatus2 PRIVATE ${WPILIB_CPP}/lib)
 
-target_link_libraries(QuickStatus2 PRIVATE 
+target_link_libraries(QuickStatus2 PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Svg
-
     wpiutil
     wpinet
     ntcore
-    # cscore
     wpimath
     wpilibc
     wpiHal
@@ -85,11 +79,9 @@ set_target_properties(QuickStatus2 PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-include(GNUInstallDirs)
 install(TARGETS QuickStatus2
     BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    RUNTIME DESTINATION .
 )
 
 if(WIN32)
@@ -98,21 +90,50 @@ if(WIN32)
         resources/app.rc
         resources/icon.ico
     )
-endif()
 
-if(WIN32)
-    # Copy WPILib DLLs
     add_custom_command(TARGET QuickStatus2 POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${WPILIB_CPP}/lib"
-            $<TARGET_FILE_DIR:QuickStatus2>
+            "$<TARGET_FILE_DIR:QuickStatus2>"
     )
 
-    # Copy Qt DLLs
     add_custom_command(TARGET QuickStatus2 POST_BUILD
         COMMAND "${Qt6_DIR}/../../../bin/windeployqt.exe"
             --no-translations
             $<TARGET_FILE:QuickStatus2>
         COMMENT "Running windeployqt..."
     )
+
+    install(DIRECTORY "$<TARGET_FILE_DIR:QuickStatus2>/"
+        DESTINATION .
+        FILES_MATCHING
+            PATTERN "*.dll"
+            PATTERN "*.exe"
+    )
+
+    foreach(plugin_dir platforms imageformats iconengines styles)
+        install(DIRECTORY "$<TARGET_FILE_DIR:QuickStatus2>/${plugin_dir}"
+            DESTINATION .
+            OPTIONAL
+        )
+    endforeach()
+
+    file(WRITE "${CMAKE_BINARY_DIR}/qt.conf" "[Paths]\nPlugins=.\n")
+    install(FILES "${CMAKE_BINARY_DIR}/qt.conf" DESTINATION .)
+
+    file(WRITE "${CMAKE_BINARY_DIR}/README.txt"
+"To run, just open QuickStatus2.exe.
+Keep all files in this folder together, otherwise program may break.
+Check this out if you want to set this as the default dashboard for FRC Driver Station: https://docs.wpilib.org/en/stable/docs/software/driverstation/manually-setting-the-driver-station-to-start-custom-dashboard.html
+
+Version: ${PROJECT_VERSION}
+")
+    install(FILES "${CMAKE_BINARY_DIR}/README.txt" DESTINATION .)
+
+    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_PACKAGE_NAME "QuickStatus2")
+    set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+    set(CPACK_PACKAGE_FILE_NAME "QuickStatus2-${PROJECT_VERSION}-win64")
+    set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY ON)
+    include(CPack)
 endif()
