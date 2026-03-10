@@ -95,7 +95,7 @@ void AutoWidget::openPopup() {
 }
 
 void AutoWidget::resizeEvent(QResizeEvent* event) {
-    noAutos->setFont(QFont("B612", rect().width()*0.2, 900));
+    noAutos->setFont(QFont("B612", rect().width()*0.15, 900));
 }
 
 AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {

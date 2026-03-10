@@ -13,7 +13,7 @@ QAbstractItemView::item::selected {
 }
 
 #autoEditButton {
-    margin:8.5px;
+    margin:8px;
     width: 16px;
     background: #00FFFFFF;
 }
@@ -100,12 +100,16 @@ QDockWidget::title {
     border-top-right-radius: 4px;
     /* border:none; */
     padding-top: 3px;
-    padding-right: 32px;
+    padding-left: 32px;
 }
 
 #genericButton, #autoEditButton {
     /* background: #3EB24F; */
     border-radius: 3px;
+}
+
+QStatusBar::item {
+    border: none;
 }
 
 QDockWidget::close-button, QDockWidget::float-button {
@@ -115,9 +119,14 @@ QDockWidget::close-button, QDockWidget::float-button {
     subcontrol-origin: margin;
     position: absolute;
     width: 16px;
+    min-width: 16px;
+    max-width: 16px;
+    height: 16px;
+    min-height: 16px;
+    max-height: 16px;
     background: #141414;
-    border-radius: 3px;
-    top: 0px; bottom: 0px;
+    border-radius: 4px;
+    top: 4px; bottom: 4px;
 }
 
 QDockWidget::close-button {

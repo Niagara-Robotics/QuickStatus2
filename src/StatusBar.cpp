@@ -61,7 +61,7 @@ StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     setObjectName("statusBar");
     setFixedHeight(40);
     setContentsMargins(5,10,5,0);
-    QFont b612("B612", 16);
+    QFont b612("B612", 12);
     connectionStatus->setFont(b612);
     
     updateStatus();
