@@ -6,8 +6,6 @@
 #include "MainWindow.h"
 #include "NTManager.h"
 
-NTManager networkTables;
-
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
