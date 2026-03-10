@@ -16,11 +16,11 @@ int main(int argc, char* argv[]) {
 
     QDirIterator loadedFonts(":/fonts", QDir::Files);
     while (loadedFonts.hasNext()) {
-        qDebug()<<"FONT ALERT";
-        int fontId = QFontDatabase::addApplicationFont(loadedFonts.next());
-        fontId = -1;
+        QString fontPath = loadedFonts.next(); // advance once, store the path
+        // qDebug() << "FONT ALERT";
+        int fontId = QFontDatabase::addApplicationFont(fontPath);
         if (fontId == -1) {
-            qDebug() << "Failed to load font "<<loadedFonts.next();
+            qDebug() << "Failed to load font " << fontPath;
         }
     }
 
