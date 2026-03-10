@@ -6,8 +6,6 @@
 #include "MainWindow.h"
 #include "NTManager.h"
 
-NTManager networkTables;
-
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
@@ -16,7 +14,6 @@ int main(int argc, char* argv[]) {
 
     QDirIterator loadedFonts(":/fonts", QDir::Files);
     while (loadedFonts.hasNext()) {
-        qDebug()<<"FONT ALERT";
         int fontId = QFontDatabase::addApplicationFont(loadedFonts.next());
         fontId = -1;
         if (fontId == -1) {

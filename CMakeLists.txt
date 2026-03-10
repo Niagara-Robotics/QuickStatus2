@@ -99,3 +99,20 @@ if(WIN32)
         resources/icon.ico
     )
 endif()
+
+if(WIN32)
+    # Copy WPILib DLLs
+    add_custom_command(TARGET QuickStatus2 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${WPILIB_CPP}/lib"
+            $<TARGET_FILE_DIR:QuickStatus2>
+    )
+
+    # Copy Qt DLLs
+    add_custom_command(TARGET QuickStatus2 POST_BUILD
+        COMMAND "${Qt6_DIR}/../../../bin/windeployqt.exe"
+            --no-translations
+            $<TARGET_FILE:QuickStatus2>
+        COMMENT "Running windeployqt..."
+    )
+endif()
