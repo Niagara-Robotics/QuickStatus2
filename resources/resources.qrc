@@ -4,10 +4,10 @@
     <file>stylesheet.qss</file>
   </qresource>
   <qresource prefix="/fonts">
-    <file>fonts/B612-Bold.ttf</file>
-    <file>fonts/B612Mono-Bold.ttf</file>
-    <file>fonts/B612-Regular.ttf</file>
-    <file>fonts/B612Mono-Regular.ttf</file>
+    <file alias="B612-Bold">fonts/B612-Bold.ttf</file>
+    <file alias="B612Mono-Bold">fonts/B612Mono-Bold.ttf</file>
+    <file alias="B612-Regular">fonts/B612-Regular.ttf</file>
+    <file alias="B612Mono-Regular">fonts/B612Mono-Regular.ttf</file>
   </qresource>
   <qresource prefix="/images/dock">
     <file alias="close">images/dock/close.png</file>
