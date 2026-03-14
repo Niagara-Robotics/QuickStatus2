@@ -8,6 +8,7 @@
 #include "FuelWidget.h"
 #include "ShiftWidget.h"
 #include "ShooterWidget.h"
+#include "SpacerWidget.h"
 #include "StatusBar.h"
 #include "SwerveWidget.h"
 
@@ -52,6 +53,7 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     QDockWidget* swerveWidget = createNewWidget(new SwerveWidget());
     QDockWidget* shooterWidget = createNewWidget(new ShooterWidget());
     QDockWidget* controlModeWidget = createNewWidget(new ControlModeWidget());
+    QDockWidget* driveSpacer = createNewWidget(new SpacerWidget());
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
 }

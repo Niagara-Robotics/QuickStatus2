@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(QuickStatus2 VERSION 0.1 LANGUAGES CXX)
+project(QuickStatus2 VERSION 0.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -27,6 +27,7 @@ qt_add_executable(QuickStatus2
     src/SwerveWidget.cpp
     src/ShooterWidget.cpp
     src/ControlModeWidget.cpp
+    src/SpacerWidget.cpp
     src/StatusBar.cpp
     include/MainWindow.h
     include/FuelWidget.h
@@ -38,6 +39,7 @@ qt_add_executable(QuickStatus2
     include/SwerveWidget.h
     include/ShooterWidget.h
     include/ControlModeWidget.h
+    include/SpacerWidget.h
     include/StatusBar.h
     resources/resources.qrc
     ${app_icon_macos}
