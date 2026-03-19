@@ -25,7 +25,7 @@ void ControlModeWidget::updateText() {
         driverColour = "#55FFFFFF";
     }
     if (nt::GetTopicExists(operatorAssistedModeSub)) {
-        operatorAssistedText = (operatorAssistedMode)? "Assisted": "Manual";
+        operatorAssistedText = (operatorAssistedMode)? "Field": "Robot";
         operatorColour = (((operatorAssistedMode)? Constants::AT_TARGET.name(): Constants::IN_PROGRESS.name())).toStdString();
     } else {
         operatorAssistedText = "—";
@@ -41,7 +41,7 @@ void ControlModeWidget::updateText() {
 
     pointSize = std::min((double)operatorLabel->width()/2, (double)operatorLabel->height())/2;
     operatorLabel->setText(QString::fromStdString(fmt::format(
-            "<span style='font-size: {}px; font-weight: 100;'>Operator</span><br>"
+            "<span style='font-size: {}px; font-weight: 100;'>Drive Centric</span><br>"
             "<span style='font-size: {}px; color: {};'>{}</span>",
             pointSize/2, pointSize, operatorColour, operatorAssistedText
     )));
@@ -70,7 +70,7 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
         inst, "/SmartDashboard/driverAssistedMode"), NT_BOOLEAN, "boolean"
     );
     operatorAssistedModeSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/operatorAssistedMode"), NT_BOOLEAN, "boolean"
+        inst, "/SmartDashboard/isFieldCentric"), NT_BOOLEAN, "boolean"
     );
 
     // pain();
@@ -100,7 +100,7 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
         }
     );
     NT_Listener operatorUpdateListener = listenerInst.AddListener(
-        listenerInst.GetTopic("/SmartDashboard/operatorAssistedMode"),
+        listenerInst.GetTopic("/SmartDashboard/isFieldCentric"),
         nt::EventFlags::kValueAll,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
@@ -111,7 +111,7 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
         }
     );
     NT_Listener operatorDisconnectListener = listenerInst.AddListener(
-        listenerInst.GetTopic("/SmartDashboard/operatorAssistedMode"),
+        listenerInst.GetTopic("/SmartDashboard/isFieldCentric"),
         nt::EventFlags::kUnpublish,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(

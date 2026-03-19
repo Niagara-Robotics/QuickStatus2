@@ -5,6 +5,9 @@
 #include <frc/Timer.h>
 
 #include "ShiftWidget.h"
+#include "networktables/NetworkTableValue.h"
+#include "ntcore_c.h"
+#include "ntcore_cpp.h"
 
 void ShiftWidget::doThing() {
     timerLabel->setText(QString::number(GetShiftTime())+" "+QString::fromStdString(GetActiveAlliance()));
@@ -86,7 +89,8 @@ std::string ShiftWidget::GetAutoWinner() {
 
 double ShiftWidget::GetStartTime() {
     nt::TimestampedString robotState = nt::GetAtomicString(robotStateSub, "");
-    double timeSinceUpdate = frc::GetTime().value() - double(robotState.time)/1000000 ; //current time - send time (in seconds)
+    double timeSinceUpdate = double(nt::Now() - robotState.time)/1000000; //current time - send time (in seconds)
+    if (timeSinceUpdate < 0) timeSinceUpdate = 0;
     timeSinceUpdate = (robotState.value != "teleop")? -1: timeSinceUpdate;
     return timeSinceUpdate;
 }
