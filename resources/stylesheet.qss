@@ -15,7 +15,28 @@ QAbstractItemView::item::selected {
 #autoEditButton {
     margin:8px;
     width: 16px;
-    background: #00FFFFFF;
+}
+
+#autoEditButton::hover {
+    margin:8px;
+    width: 16px;
+}
+#categoryButton {
+    border-radius:6px;
+}
+
+#categoryButton::checked {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom: 5px solid #3EB24F;
+}
+#categoryButton::indicator {
+    image: none;
+    width: 0;
+}
+
+#categoriesLayout {
+    border-bottom: 5px solid #3EB24F;
 }
 
 QRadioButton {
@@ -26,6 +47,8 @@ QRadioButton {
     padding: 3px;
     font-family: "B612";
     font-size: 26px;
+    margin-top: 2px;
+    margin-bottom: 2px;
 }
 QRadioButton::hover {
     background: #22FFFFFF;
@@ -46,6 +69,12 @@ QRadioButton::indicator {
 QRadioButton::indicator::checked {
     /* background: #3EB24F; */
     image: url(":/images/auto/check");
+}
+QMainWindow {
+    background: #0b0b0b;
+}
+QLabel, QRadioButton {
+    color: white;
 }
 QMainWindow::separator {
     width: 0px;
@@ -71,12 +100,9 @@ QMainWindow::separator {
 }
 
 #dockContent, #statusBar {
-    background-color: #18FFFFFF;
+    background-color: #1b1b1b;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
-}
-#dockContent {
-    /* margin-bottom:100px; */
 }
 
 QDockWidget {
@@ -106,6 +132,13 @@ QDockWidget::title {
 #genericButton, #autoEditButton {
     /* background: #3EB24F; */
     border-radius: 3px;
+    border-image: url(":/images/auto/edit");
+}
+#genericButton::hover, #autoEditButton::hover {
+    border-image: url(":/images/auto/edit_hover");
+}
+#genericButton::pressed, #autoEditButton::pressed {
+    border-image: url(":/images/auto/edit_press");
 }
 
 QStatusBar::item {

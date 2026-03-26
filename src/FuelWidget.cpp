@@ -36,11 +36,11 @@ void FuelWidget::paintEvent(QPaintEvent * event) {
     double blinkSpeed = 1.7;
     bool isBlinkVisible = (fmod(blinkClock*blinkSpeed, 1) > 0.5);
     
-    float pointSize = textLabel->height() * 0.4;
+    float pointSize = fmin(textLabel->width(), textLabel->height()) * 0.4;
     QPoint center = rect().center();
     textLabel->setFont(QFont("B612 Mono", pointSize, 700));
 
-    double arcSize = textLabel->height() * 0.8;
+    double arcSize = pointSize * 2;
 
     QRectF boundingRect(center.x() - arcSize / 2.0, 
         center.y() - arcSize / 2.0, 

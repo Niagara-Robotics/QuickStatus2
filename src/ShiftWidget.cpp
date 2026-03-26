@@ -2,6 +2,7 @@
 #include <QGridLayout>
 #include <QPainter>
 
+#include <cmath>
 #include <frc/Timer.h>
 
 #include "ShiftWidget.h"
@@ -104,12 +105,13 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     double shiftTime = GetShiftTime();
     double blinkClock = frc::GetTime().value();
     double blinkSpeed = 3;
+    double minSize = fmin(timerLabel->width(), timerLabel->height());
     bool isBlinkVisible = (fmod(blinkClock*blinkSpeed, 1) > 0.5);
     std::string activeAlliance = GetActiveAlliance();
     std::string currentAlliance = GetCurrentAlliance();
 
     //timer display
-    float pointSize = timerLabel->height() * 0.2;
+    float pointSize = minSize * 0.2;
     if (shiftTime == -1) { //invalid data
         timerLabel->setText(QString::fromStdString(fmt::format(
             "<span style='font-size: {}px;'>—</span> <span style='font-size: {}px;'>.—</span>",
@@ -135,7 +137,7 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     painter.drawText(activeRect, Qt::AlignCenter, QString::fromStdString(GetCurrentShift()));
     
 
-    int arcWidth = timerLabel->height() * 0.8;
+    int arcWidth = minSize * 0.8;
     int arcHeight = arcWidth;
 
     //centered rect
@@ -144,7 +146,7 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
         arcWidth, arcHeight
     );
 
-    pen.setWidth(40);
+    pen.setWidth(minSize*0.1);
     pen.setColor(QColor("#22FFFFFF"));
     painter.setPen(pen);
     painter.drawArc(boundingRect, 0, 5760);
@@ -163,7 +165,7 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
             painter.drawArc(boundingRect, startAngle * 16, spanAngle);
         }
     
-        pen.setWidth(32);
+        pen.setWidth(minSize*0.08);
         pen.setColor(QString::fromStdString(allianceColour));
         painter.setPen(pen);
         painter.drawArc(boundingRect, startAngle * 16, spanAngle);
@@ -183,7 +185,7 @@ ShiftWidget::ShiftWidget(QWidget* parent):QWidget(parent) {
     timerLabel->setAlignment(Qt::AlignCenter);
     timerLabel->setScaledContents(true);
     refreshTimer.setParent(this);
-    refreshTimer.setTimerType(Qt::PreciseTimer);
+    refreshTimer.setTimerType(Qt::CoarseTimer);
     connect(&refreshTimer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
-    refreshTimer.start(1000.0/60.0);
+    refreshTimer.start(33);
 }

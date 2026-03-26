@@ -15,11 +15,12 @@ void AutoPopup::applyAction() {
 }
 
 void AutoPopup::checkTables() {
+    if (!inst.IsConnected()) return;
     std::vector<std::string> smartSubtables = inst.GetTable("SmartDashboard")->GetSubTables();
     validTables.clear();
 
-    for (const std::string &subtable : smartSubtables)  { //for each subtable
-        // qDebug()<<subtable;
+    for (const std::string &subtable : smartSubtables) { //for each subtable
+        if (subtable == "Shooters") continue;
         std::string topicType;
         for (int i = 0; i<40; i++) { // attempt to grab entry 40 times over 1 second
             topicType = inst.GetEntry("/SmartDashboard/"+subtable+"/.type").GetString("");
@@ -41,7 +42,6 @@ AutoPopup::AutoPopup(QWidget* parent, AutoWidget* autoWidget):QDialog(parent) {
     setFixedSize(300,100);
     QFormLayout* layout = new QFormLayout(this);
     setWindowTitle("Set Chooser Table");
-
     checkTables();
 
     QCompleter* completer = new QCompleter(validTables);

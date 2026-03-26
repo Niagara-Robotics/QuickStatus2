@@ -18,6 +18,7 @@ public:
 
     void setupNT();
     void buttonClicked(std::string value);
+    void categoryChanged(std::string value);
     void updateButtons();
     void removeButtons();
     void openPopup();
@@ -27,6 +28,7 @@ public:
     NT_Subscriber defaultSub;
     NT_Publisher selectionPub;
     QButtonGroup buttons;
+    QButtonGroup categories;
     QVBoxLayout* layout;
     QLabel* noAutos;
     QSettings settings;

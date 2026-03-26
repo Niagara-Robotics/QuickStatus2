@@ -69,7 +69,7 @@ StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     QPushButton* editButton = new QPushButton();
     editButton->setFlat(true);
     editButton->setFixedSize(16,16);
-    editButton->setIcon(QIcon(":/images/auto/edit"));
+    // editButton->setIcon(QIcon(":/images/auto/edit"));
     editButton->setObjectName("genericButton");
     connect(editButton, &QPushButton::clicked, this, &StatusBar::openPopup);
 

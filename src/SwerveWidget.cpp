@@ -74,7 +74,7 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
             break;
     };
 
-    int baseSize = height()*0.5;
+    int baseSize = fmin(width(), height())*0.5;
     QRect baseRect = rect();
     baseRect.setSize(QSize(baseSize,baseSize));
     baseRect.moveCenter(rect().center());
@@ -168,7 +168,7 @@ SwerveWidget::SwerveWidget(QWidget* parent):QWidget(parent) {
     );
 
     refreshTimer.setParent(this);
-    refreshTimer.setTimerType(Qt::PreciseTimer);
+    refreshTimer.setTimerType(Qt::CoarseTimer);
     connect(&refreshTimer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
-    refreshTimer.start(1000.0/60.0);
+    refreshTimer.start(33);
 }

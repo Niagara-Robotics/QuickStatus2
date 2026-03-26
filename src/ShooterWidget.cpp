@@ -48,7 +48,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
     // draw RPS text
 
-    double textSize = rect().height()*0.2;
+    double textSize = fmin(width(), height())*0.2;
     QRect rpsRect = rect();
     rpsRect.adjust(0, -textSize*2.5, 0, 0);
     
@@ -174,7 +174,7 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
     );
 
     refreshTimer.setParent(this);
-    refreshTimer.setTimerType(Qt::PreciseTimer);
+    refreshTimer.setTimerType(Qt::CoarseTimer);
     connect(&refreshTimer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
-    refreshTimer.start(1000.0/60.0);
+    refreshTimer.start(33);
 }

@@ -23,6 +23,7 @@ QDockWidget* MainWindow::createNewWidget(QWidget* content) {
     
     content->setObjectName("dockContent");
     content->setAttribute(Qt::WA_StyledBackground, true);
+    dockContainer->setAttribute(Qt::WA_StyledBackground, true);
     dockContainer->setWidget(content);
 
     widgetCount += 1;
@@ -47,13 +48,13 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     StatusBar* statusBar = new StatusBar(this);
     setStatusBar(statusBar);
 
-    QDockWidget* shiftWidget = createNewWidget(new ShiftWidget());
-    QDockWidget* autoWidget = createNewWidget(new AutoWidget());
-    QDockWidget* fuelWidget = createNewWidget(new FuelWidget());
-    QDockWidget* swerveWidget = createNewWidget(new SwerveWidget());
-    QDockWidget* shooterWidget = createNewWidget(new ShooterWidget());
-    QDockWidget* controlModeWidget = createNewWidget(new ControlModeWidget());
-    QDockWidget* driveSpacer = createNewWidget(new SpacerWidget());
+    QDockWidget* shiftWidget = createNewWidget(new ShiftWidget(this));
+    QDockWidget* autoWidget = createNewWidget(new AutoWidget(this));
+    QDockWidget* fuelWidget = createNewWidget(new FuelWidget(this));
+    QDockWidget* swerveWidget = createNewWidget(new SwerveWidget(this));
+    QDockWidget* shooterWidget = createNewWidget(new ShooterWidget(this));
+    QDockWidget* controlModeWidget = createNewWidget(new ControlModeWidget(this));
+    QDockWidget* driveSpacer = createNewWidget(new SpacerWidget(this));
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
 }
