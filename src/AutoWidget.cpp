@@ -152,8 +152,8 @@ AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
     gridContainer->setObjectName("categoriesLayout");
     layout->addWidget(gridContainer);
     categories.addButton(new QRadioButton("Simple", this));
-    categories.addButton(new QRadioButton("Less Advanced", this));
-    categories.addButton(new QRadioButton("More Advanced", this));
+    categories.addButton(new QRadioButton("Less Adv.", this));
+    categories.addButton(new QRadioButton("More Adv.", this));
     categories.addButton(new QRadioButton("Complex", this));
 
     for (int i=0; i < categories.buttons().length(); i++) {
