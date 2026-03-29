@@ -74,7 +74,7 @@ void AutoWidget::categoryChanged(std::string value) {
     for (QAbstractButton* button : buttons.buttons()) {
         QString originalText = button->windowIconText();
         button->setVisible(
-            originalText.startsWith(QString::fromStdString(value)) ||
+            originalText.startsWith(QString::fromStdString(value) + " ") ||
             originalText == "None"
         );
     }
@@ -97,7 +97,7 @@ void AutoWidget::updateButtons() {
         if (active == option) button->setChecked(true);
         std::string text = button->text().toStdString();
         for (QAbstractButton* category: categories.buttons()) {
-            std::string categoryText = category->text().toStdString() + " ";
+            std::string categoryText = category->windowIconText().toStdString() + " ";
             if (text.find(categoryText) == 0) {
                 text.erase(0, categoryText.length()); // first instance of text
             }
@@ -113,7 +113,7 @@ void AutoWidget::updateButtons() {
         button->setWindowIconText(QString::fromStdString(option));
     }
     noAutos->setVisible(options.empty());
-    categoryChanged(categories.checkedButton()->text().toStdString());
+    categoryChanged(categories.checkedButton()->windowIconText().toStdString());
 }
 
 void AutoWidget::openPopup() {
@@ -155,13 +155,15 @@ AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
     categories.addButton(new QRadioButton("Less Adv.", this));
     categories.addButton(new QRadioButton("More Adv.", this));
     categories.addButton(new QRadioButton("Complex", this));
+    QString categoryIds[] = {"S", "L", "M", "C"};
 
     for (int i=0; i < categories.buttons().length(); i++) {
         QAbstractButton* button = categories.buttons()[i];
         button->setObjectName("categoryButton");
+        button->setWindowIconText(categoryIds[i]);
         button->setChecked(i==0);
 
-        std::string category = button->text().toStdString();
+        std::string category = button->windowIconText().toStdString();
         connect(button, &QRadioButton::clicked, this, [this, category]() {
             categoryChanged(category);
         });
