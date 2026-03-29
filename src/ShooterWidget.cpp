@@ -46,9 +46,14 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
     bool driverAssistedMode = nt::GetBoolean(driverAssistedModeSub, true);
 
+    totalLeftFeederRPS += leftFeederRPS;
+    totalLeftShooterRPS += leftShooterRPS;
+    totalRightFeederRPS += rightFeederRPS;
+    totalRightShooterRPS += rightShooterRPS;
+
     // draw RPS text
 
-    double textSize = fmin(width(), height())*0.2;
+    double textSize = fmin(width(), height())*0.21;
     QRect rpsRect = rect();
     rpsRect.adjust(0, -textSize*2.5, 0, 0);
     
@@ -89,6 +94,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
     for (int i=0; i<2; i++) {
         int shooterStatus = ((i==0)? leftShooterStatus: rightShooterStatus);
+        int totalShooterRPS = ((i==0)? totalLeftShooterRPS: totalRightShooterRPS);
         int shooterRPS = ((i==0)? leftShooterRPS: rightShooterRPS);
         createIconFromSvg(outline, "#FFFFFF", outlineSize.toSize()*2).paint(&painter, outlineRect.toRect());
         
@@ -98,7 +104,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
         if (shooterRPS != -1) {
             painter.translate(shooterRect.center());
-            painter.rotate(-shooterRPS*frc::GetTime().value()*5);
+            painter.rotate(-totalShooterRPS*0.1);
             painter.translate(-shooterRect.center());
         }
 
@@ -108,6 +114,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
         painter.drawText(shooterRect, Qt::AlignCenter, (shooterRPS == -1)? "—": QString::number(shooterRPS));
         // render feeder
         int feederStatus = ((i==0)? leftFeederStatus: rightFeederStatus);
+        int totalFeederRPS = ((i==0)? totalLeftFeederRPS: totalRightFeederRPS);
         int feederRPS = ((i==0)? leftFeederRPS: rightFeederRPS);
 
         QColor feederColour = getStatusColour(feederStatus);
@@ -121,7 +128,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
         if (feederRPS != -1) {
             painter.translate(feederRect.center());
-            painter.rotate(-feederRPS*frc::GetTime().value()*5);
+            painter.rotate(-totalFeederRPS*0.1);
             painter.translate(-feederRect.center());
         }
 
@@ -172,9 +179,4 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
     driverAssistedModeSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/driverAssistedMode"), NT_BOOLEAN, "boolean"
     );
-
-    refreshTimer.setParent(this);
-    refreshTimer.setTimerType(Qt::CoarseTimer);
-    connect(&refreshTimer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
-    refreshTimer.start(33);
 }

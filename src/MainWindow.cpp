@@ -1,6 +1,7 @@
 #include <QGridLayout>
 #include <QSettings>
 #include <QtCore/qnamespace.h>
+#include <QtWidgets/qwidget.h>
 
 #include "MainWindow.h"
 #include "AutoWidget.h"
@@ -45,18 +46,32 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::ColorRole::Mid);
 
-    StatusBar* statusBar = new StatusBar(this);
+    static StatusBar* statusBar = new StatusBar(this);
     setStatusBar(statusBar);
 
-    QDockWidget* shiftWidget = createNewWidget(new ShiftWidget(this));
-    QDockWidget* autoWidget = createNewWidget(new AutoWidget(this));
-    QDockWidget* fuelWidget = createNewWidget(new FuelWidget(this));
-    QDockWidget* swerveWidget = createNewWidget(new SwerveWidget(this));
-    QDockWidget* shooterWidget = createNewWidget(new ShooterWidget(this));
-    QDockWidget* controlModeWidget = createNewWidget(new ControlModeWidget(this));
-    QDockWidget* driveSpacer = createNewWidget(new SpacerWidget(this));
+    static QDockWidget* shiftWidget = createNewWidget(new ShiftWidget(this));
+    static QDockWidget* autoWidget = createNewWidget(new AutoWidget(this));
+    static QDockWidget* fuelWidget = createNewWidget(new FuelWidget(this));
+    static QDockWidget* swerveWidget = createNewWidget(new SwerveWidget(this));
+    static QDockWidget* shooterWidget = createNewWidget(new ShooterWidget(this));
+    static QDockWidget* controlModeWidget = createNewWidget(new ControlModeWidget(this));
+    static QDockWidget* driveSpacer = createNewWidget(new SpacerWidget(this));
+    
+    static QWidget* shiftContent = shiftWidget->widget();
+    static QWidget* swerveContent = swerveWidget->widget();
+    static QWidget* shooterContent = shooterWidget->widget();
+    static QWidget* fuelContent = fuelWidget->widget();
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
+    QTimer* refreshTimer = new QTimer(this);
+    refreshTimer->setTimerType(Qt::CoarseTimer);
+    connect(refreshTimer, &QTimer::timeout, this, [this]() {
+        shiftContent->update();
+        swerveContent->update();
+        shooterContent->update();
+        fuelContent->update();
+    });
+    refreshTimer->start(33);
 }
 
 void MainWindow::restoreApplicationState()

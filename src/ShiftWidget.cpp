@@ -6,9 +6,6 @@
 #include <frc/Timer.h>
 
 #include "ShiftWidget.h"
-#include "networktables/NetworkTableValue.h"
-#include "ntcore_c.h"
-#include "ntcore_cpp.h"
 
 void ShiftWidget::doThing() {
     timerLabel->setText(QString::number(GetShiftTime())+" "+QString::fromStdString(GetActiveAlliance()));
@@ -22,58 +19,46 @@ std::string ShiftWidget::GetCurrentAlliance() {
 }
 
 std::string ShiftWidget::GetActiveAlliance() {
-    double startTime = GetStartTime();
+    double timeLeft = GetTimeLeft();
     std::string autoWinner = GetAutoWinner();
     std::string autoLoser = (autoWinner == "R")? "B": "R";
     
-    if (startTime == -1 || startTime > 140 || autoWinner == "") return "";
-    if (startTime <= 10 || startTime > 110) {
-        return "A"; // all active
-    } else if ((startTime > 10 && startTime <= 35) || (startTime > 60 && startTime <= 85)) {
-        return autoLoser;
-    } else return autoWinner;
+    if (timeLeft == -1 || timeLeft > 140 || autoWinner == "") return "";
+    if (timeLeft > 130 || timeLeft <= 30) return "A"; // all active
+    else if ((timeLeft > 30 && timeLeft <= 55) || 
+            (timeLeft > 80 && timeLeft <= 105)
+    ) return autoLoser;
+    else return autoWinner;
 }
 
 std::string ShiftWidget::GetCurrentShift() {
-    double startTime = GetStartTime();
-    if (startTime == -1) return "";
-    if (startTime <= 10) {
-        return "Transition";
-    } else if (startTime > 10 && startTime <= 110) {
-        return "Shift " + std::to_string(int(ceil((startTime-10) / 25.0)));
-    } else if (startTime > 110 && startTime <= 140) {
-        return "End Game";
-    } else return "";
+    double timeLeft = GetTimeLeft();
+    if (timeLeft == -1) return "";
+    if (timeLeft > 130) return "Transition";
+    else if (timeLeft > 30) return "Shift " + std::to_string(int(ceil((131-timeLeft) / 25.0)));
+    else return "End Game";
 }
 
 double ShiftWidget::GetShiftTime() {
-    double startTime = GetStartTime();
-    if (startTime == -1) return -1;
-    if (startTime <= 10) {
-        return 10 - startTime;
-    } else if (startTime > 10 && startTime <= 110) {
-        return 25 - fmod(startTime-10, 25);
-    } else if (startTime > 110 && startTime <= 140) {
-        return 140 - startTime;
-    } else return -1;
+    double timeLeft = GetTimeLeft();
+    if (timeLeft == -1) return -1;
+    if (timeLeft > 130) return timeLeft - 130;
+    else if (timeLeft > 30) return - fmod(6-timeLeft, 25)+1;
+    else return timeLeft;
 }
 
 double ShiftWidget::GetShiftTimeMax() {
-    double startTime = GetStartTime();
-    if (startTime == -1) return -1;
-    if (startTime <= 10) {
-        return 10;
-    } else if (startTime > 10 && startTime <= 110) {
-        return 25;
-    } else if (startTime > 110 && startTime <= 140) {
-        return 30;
-    } else return -1;
+    double timeLeft = GetTimeLeft();
+    if (timeLeft == -1) return -1;
+    if (timeLeft > 130) return 10;
+    else if (timeLeft > 30) return 25;
+    else return 30;
 }
 
 void ShiftWidget::SetupNT() {
     inst = nt::GetDefaultInstance();
-    robotStateSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/robotState"), NT_STRING, "string"
+    matchTimeSub = nt::Subscribe(nt::GetTopic(
+        inst, "/SmartDashboard/matchTime"), NT_DOUBLE, "double"
     );
     gameMessageSub = nt::Subscribe(nt::GetTopic(
         inst, "/FMSInfo/GameSpecificMessage"), NT_STRING, "string"
@@ -88,12 +73,9 @@ std::string ShiftWidget::GetAutoWinner() {
     return gabeMessage; //gabe has taken over FRC and is infecting my variable names
 }
 
-double ShiftWidget::GetStartTime() {
-    nt::TimestampedString robotState = nt::GetAtomicString(robotStateSub, "");
-    double timeSinceUpdate = double(nt::Now() - robotState.time)/1000000; //current time - send time (in seconds)
-    if (timeSinceUpdate < 0) timeSinceUpdate = 0;
-    timeSinceUpdate = (robotState.value != "teleop")? -1: timeSinceUpdate;
-    return timeSinceUpdate;
+double ShiftWidget::GetTimeLeft() {
+    auto matchTime = nt::GetDouble(matchTimeSub, -1);
+    return (matchTime<0)? -1: matchTime;
 }
 
 void ShiftWidget::paintEvent(QPaintEvent* event) {
@@ -105,7 +87,7 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     double shiftTime = GetShiftTime();
     double blinkClock = frc::GetTime().value();
     double blinkSpeed = 3;
-    double minSize = fmin(timerLabel->width(), timerLabel->height());
+    double minSize = fmin(timerLabel->width(), timerLabel->height())*1.1;
     bool isBlinkVisible = (fmod(blinkClock*blinkSpeed, 1) > 0.5);
     std::string activeAlliance = GetActiveAlliance();
     std::string currentAlliance = GetCurrentAlliance();
@@ -114,15 +96,13 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     float pointSize = minSize * 0.2;
     if (shiftTime == -1) { //invalid data
         timerLabel->setText(QString::fromStdString(fmt::format(
-            "<span style='font-size: {}px;'>—</span> <span style='font-size: {}px;'>.—</span>",
-            pointSize, pointSize*0.6
+            "<span style='font-size: {}px;'>—</span>",
+            pointSize*1.2
         )));
     } else { //yippie display the timer!!
-        int timeBig = shiftTime;
-        int timeSmall = fmod(shiftTime, 1)*10;
         timerLabel->setText(QString::fromStdString(fmt::format(
-            "<span style='font-size: {}px;'>{}</span> <span style='font-size: {}px;'>.{}</span>",
-            pointSize, timeBig, pointSize*0.6, timeSmall
+            "<span style='font-size: {}px;'>{}</span>",
+            pointSize*1.2, shiftTime
         )));
     }
 
@@ -135,7 +115,6 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     if (activeAlliance == "A" || (activeAlliance == currentAlliance && activeAlliance != "")) painter.drawText(activeRect, Qt::AlignCenter, "ACTIVE");
     activeRect.setTop(pointSize*2);
     painter.drawText(activeRect, Qt::AlignCenter, QString::fromStdString(GetCurrentShift()));
-    
 
     int arcWidth = minSize * 0.8;
     int arcHeight = arcWidth;
@@ -183,9 +162,4 @@ ShiftWidget::ShiftWidget(QWidget* parent):QWidget(parent) {
 
     timerLabel->setFont(QFont("B612 Mono"));
     timerLabel->setAlignment(Qt::AlignCenter);
-    timerLabel->setScaledContents(true);
-    refreshTimer.setParent(this);
-    refreshTimer.setTimerType(Qt::CoarseTimer);
-    connect(&refreshTimer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
-    refreshTimer.start(33);
 }

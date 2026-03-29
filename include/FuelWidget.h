@@ -4,6 +4,10 @@
 #include <QWidget>
 #include <QTimer>
 #include <QLabel>
+#include <QtGui/qpainter.h>
+#include <QtGui/qpen.h>
+#include <QtGui/qwindowdefs.h>
+#include <QtWidgets/qwidget.h>
 #include <ntcore.h>
 
 class FuelWidget : public QWidget {
@@ -19,9 +23,13 @@ public:
     QLabel* textLabel = new QLabel();
     std::string detector;
     int tagCount;
+    float pointSize;
+    QPen pen;
+    QPainter* painter;
+    QRect boundingRect;
 private:
-    QTimer refreshTimer;
 protected:
     void check();
     void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 };

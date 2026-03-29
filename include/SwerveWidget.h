@@ -28,7 +28,6 @@ public:
     QSvgRenderer velocityRender = QSvgRenderer(QString::fromStdString(":/images/swerve/velocity"));
     QSvgRenderer powerRender = QSvgRenderer(QString::fromStdString(":/images/swerve/power"));
 private:
-    QTimer refreshTimer;
     QIcon createIconFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size);
 protected:
     void paintEvent(QPaintEvent *event);

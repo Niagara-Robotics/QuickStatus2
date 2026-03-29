@@ -13,7 +13,7 @@ public:
     explicit ShiftWidget(QWidget* parent = nullptr);
     ~ShiftWidget() {}
 
-    double GetStartTime();
+    double GetTimeLeft();
     double GetShiftTime();
     double GetShiftTimeMax();
     std::string GetCurrentAlliance();
@@ -23,13 +23,12 @@ public:
     void SetupNT();
     void doThing(); //testing
     NT_Inst inst;
-    NT_Subscriber robotStateSub;
+    NT_Subscriber matchTimeSub;
     NT_Subscriber gameMessageSub;
     NT_Subscriber isRedSub;
     QLabel* timerLabel = new QLabel();
 
 private:
-    QTimer refreshTimer;
 
 protected:
     void paintEvent(QPaintEvent* event) override;

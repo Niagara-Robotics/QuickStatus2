@@ -128,7 +128,7 @@ AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
     setWindowTitle("Auto Chooser");
     layout = new QVBoxLayout(this);
     this->setLayout(layout);
-    layout->setContentsMargins(10,35,10,10);
+    layout->setContentsMargins(10,20,10,10);
 
     //ensure value exists by giving it a default
     if (!settings.value("autoChooser").isValid()) {
@@ -147,7 +147,7 @@ AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
     editContainer->adjustSize();
     QWidget* gridContainer = new QWidget();
     QGridLayout* gridLayout = new QGridLayout(gridContainer);
-    gridContainer->setMaximumHeight(125);
+    gridContainer->setFixedHeight(125);
     gridContainer->setLayout(gridLayout);
     gridContainer->setObjectName("categoriesLayout");
     layout->addWidget(gridContainer);

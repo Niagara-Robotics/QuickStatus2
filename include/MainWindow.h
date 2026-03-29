@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include <QDockWidget>
+#include <QtCore/qtimer.h>
 // #include <memory>
 
 class MainWindow : public QMainWindow {

@@ -28,8 +28,12 @@ public:
     QSvgRenderer wheel_8 = QSvgRenderer(QString::fromStdString(":/images/shooter/wheel_8"));
     QSvgRenderer outline = QSvgRenderer(QString::fromStdString(":/images/shooter/outline"));
 
+    double totalLeftShooterRPS;
+    double totalLeftFeederRPS;
+    double totalRightShooterRPS;
+    double totalRightFeederRPS;
+
 private:
-    QTimer refreshTimer;
     QIcon createIconFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size);
 
 protected:

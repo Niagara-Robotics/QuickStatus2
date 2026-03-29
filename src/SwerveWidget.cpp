@@ -166,9 +166,4 @@ SwerveWidget::SwerveWidget(QWidget* parent):QWidget(parent) {
     alignStatusSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/alignStatus"), NT_INTEGER, "int"
     );
-
-    refreshTimer.setParent(this);
-    refreshTimer.setTimerType(Qt::CoarseTimer);
-    connect(&refreshTimer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
-    refreshTimer.start(33);
 }
