@@ -5,10 +5,15 @@
 #include <QtWidgets/qabstractbutton.h>
 #include <QtWidgets/qgridlayout.h>
 #include <QtWidgets/qlayoutitem.h>
+#include <QtWidgets/qradiobutton.h>
 #include <QtWidgets/qwidget.h>
 #include <string>
+#include <vector>
 #include "AutoWidget.h"
 #include "AutoPopup.h"
+#include "ntcore_c.h"
+#include "ntcore_cpp.h"
+#include "ntcore_cpp_types.h"
 
 void AutoWidget::setupNT() {
     QString autoName = (settings.value("autoChooser").toString());
@@ -31,6 +36,9 @@ void AutoWidget::setupNT() {
     defaultSub = nt::Subscribe(
         nt::GetTopic(inst, autoPath + "default"), 
         NT_STRING, "string");
+    matchNumberSub = nt::Subscribe(
+        nt::GetTopic(inst, "/FMSInfo/MatchNumber"),
+        NT_INTEGER, "int");
     selectionPub = nt::Publish(
         nt::GetTopic(inst, autoPath + "selected"),
         NT_STRING, "string");
@@ -63,7 +71,30 @@ void AutoWidget::setupNT() {
         }
     );
 
+    listenerInst.AddListener(
+        listenerInst.GetTopic("/FMSInfo/MatchNumber"),
+        nt::EventFlags::kValueAll,
+        [this](const nt::Event&) {
+            QMetaObject::invokeMethod(
+                this,
+                &AutoWidget::updateMatch,
+                Qt::QueuedConnection
+            );
+        }
+    );
+
     updateButtons();
+}
+
+void AutoWidget::updateMatch() {
+    QSettings settings;
+    int currentMatch = nt::GetInteger(matchNumberSub, 0);
+    int lastMatch = settings.value("lastMatch").toInt();
+    if (currentMatch != lastMatch) {
+        buttonClicked(nt::GetString(defaultSub, ""));
+        updateButtons();
+    }
+    settings.setValue("lastMatch", currentMatch);
 }
 
 void AutoWidget::buttonClicked(std::string value) {
@@ -90,27 +121,44 @@ void AutoWidget::removeButtons() {
 void AutoWidget::updateButtons() {
     std::string active = nt::GetString(activeSub, "");
     std::string defaultSelected = nt::GetString(defaultSub, "");
-    auto options = nt::GetStringArray(optionsSub, std::span<std::string>());
+    std::vector<std::string> options = nt::GetStringArray(optionsSub, std::span<std::string>());
+    std::vector<std::string> buttonOrder[6];
     removeButtons();
+    int i = 0;
     for (std::string option : options) {
-        QRadioButton* button = new QRadioButton(QString::fromStdString(option), this);
-        if (active == option) button->setChecked(true);
-        std::string text = button->text().toStdString();
-        for (QAbstractButton* category: categories.buttons()) {
-            std::string categoryText = category->windowIconText().toStdString() + " ";
-            if (text.find(categoryText) == 0) {
-                text.erase(0, categoryText.length()); // first instance of text
+        if (option == "None") {
+            buttonOrder[0].insert(buttonOrder[0].begin(), option);
+            options[i].erase();
+        } 
+        else if (option.find("LTrench") == 2) buttonOrder[0].push_back(option);
+        else if (option.find("LBump") == 2) buttonOrder[1].push_back(option);
+        else if (option.find("Hub") == 2) buttonOrder[2].push_back(option);
+        else if (option.find("RBump") == 2) buttonOrder[3].push_back(option);
+        else if (option.find("RTrench") == 2) buttonOrder[4].push_back(option);
+        else buttonOrder[5].push_back(option);
+        i++;
+    }
+    for (std::vector<std::string> order : buttonOrder) {
+        for (std::string option : order) {
+            QRadioButton* button = new QRadioButton(QString::fromStdString(option), this);
+            if (active == option) button->setChecked(true);
+            std::string text = button->text().toStdString();
+            for (QAbstractButton* category: categories.buttons()) {
+                std::string categoryText = category->windowIconText().toStdString() + " ";
+                if (text.find(categoryText) == 0) {
+                    text.erase(0, categoryText.length()); // first instance of text
+                }
             }
+            button->setText(QString::fromStdString(text));
+            if (defaultSelected == option) button->setText(button->text()+" •");
+            button->setContentsMargins(10,10,10,10);
+            buttons.addButton(button);
+            layout->addWidget(button);
+            connect(button, &QRadioButton::clicked, this, [this, option]() {
+                buttonClicked(option);
+            });
+            button->setWindowIconText(QString::fromStdString(option));
         }
-        button->setText(QString::fromStdString(text));
-        if (defaultSelected == option) button->setText(button->text()+" •");
-        button->setContentsMargins(10,10,10,10);
-        buttons.addButton(button);
-        layout->addWidget(button);
-        connect(button, &QRadioButton::clicked, this, [this, option]() {
-            buttonClicked(option);
-        });
-        button->setWindowIconText(QString::fromStdString(option));
     }
     noAutos->setVisible(options.empty());
     categoryChanged(categories.checkedButton()->windowIconText().toStdString());
@@ -186,4 +234,6 @@ AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
     // updateButtons();
 
     QTimer::singleShot(0, this, &AutoWidget::setupNT);
+
+
 }

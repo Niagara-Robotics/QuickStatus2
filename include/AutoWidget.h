@@ -22,10 +22,12 @@ public:
     void updateButtons();
     void removeButtons();
     void openPopup();
+    void updateMatch();
     NT_Inst inst;
     NT_Subscriber optionsSub;
     NT_Subscriber activeSub;
     NT_Subscriber defaultSub;
+    NT_Subscriber matchNumberSub;
     NT_Publisher selectionPub;
     QButtonGroup buttons;
     QButtonGroup categories;

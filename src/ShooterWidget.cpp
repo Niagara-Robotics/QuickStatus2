@@ -1,8 +1,5 @@
 #include "ShooterWidget.h"
 #include "Constants.h"
-#include "frc/Timer.h"
-#include "ntcore_c.h"
-#include "ntcore_cpp_types.h"
 #include <QPainter>
 #include <QtCore/qnamespace.h>
 #include <QtGui/qcolor.h>
@@ -58,8 +55,8 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     rpsRect.adjust(0, -textSize*2.5, 0, 0);
     
     QString rpsText;
-    if (driverAssistedMode) rpsText = ((targetRPS != -1)? QString::number(targetRPS): "—")+" RPS";
-    else rpsText = ((manualShooterRPS != -1)? QString::number(manualShooterRPS): "—")+" RPS";
+    if (driverAssistedMode) rpsText = ((targetRPS != -1)? QString::number(round(targetRPS)): "—")+" RPS";
+    else rpsText = ((manualShooterRPS != -1)? QString::number(round(manualShooterRPS)): "—")+" RPS";
 
     painter.setPen(QPen("#FFFFFF"));
     if (!driverAssistedMode) painter.setOpacity(1);
