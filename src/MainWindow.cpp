@@ -12,6 +12,7 @@
 #include "SpacerWidget.h"
 #include "StatusBar.h"
 #include "SwerveWidget.h"
+#include "CalibrationWidget.h"
 
 QDockWidget* MainWindow::createNewWidget(QWidget* content) {
     QDockWidget* dockContainer = new QDockWidget(content->windowTitle(), this);
@@ -56,11 +57,13 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     static QDockWidget* shooterWidget = createNewWidget(new ShooterWidget(this));
     static QDockWidget* controlModeWidget = createNewWidget(new ControlModeWidget(this));
     static QDockWidget* driveSpacer = createNewWidget(new SpacerWidget(this));
+    static QDockWidget* calibrationWidfget = createNewWidget(new CalibrationWidget(this));
     
     static QWidget* shiftContent = shiftWidget->widget();
     static QWidget* swerveContent = swerveWidget->widget();
     static QWidget* shooterContent = shooterWidget->widget();
     static QWidget* fuelContent = fuelWidget->widget();
+    static QWidget* calibrationContent = calibrationWidfget->widget();
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
     QTimer* refreshTimer = new QTimer(this);
@@ -70,6 +73,7 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
         swerveContent->update();
         shooterContent->update();
         fuelContent->update();
+        calibrationContent->update();
     });
     refreshTimer->start(33);
 }

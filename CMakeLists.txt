@@ -27,6 +27,7 @@ qt_add_executable(QuickStatus2
     src/SwerveWidget.cpp
     src/ShooterWidget.cpp
     src/ControlModeWidget.cpp
+    src/CalibrationWidget.cpp
     src/SpacerWidget.cpp
     src/StatusBar.cpp
     include/MainWindow.h
@@ -39,6 +40,7 @@ qt_add_executable(QuickStatus2
     include/SwerveWidget.h
     include/ShooterWidget.h
     include/ControlModeWidget.h
+    include/CalibrationWidget.h
     include/SpacerWidget.h
     include/StatusBar.h
     resources/resources.qrc
