@@ -26,6 +26,7 @@ public:
     NT_Subscriber matchTimeSub;
     NT_Subscriber gameMessageSub;
     NT_Subscriber isRedSub;
+    NT_Subscriber robotStateSub;
     QLabel* timerLabel = new QLabel();
 
 private:

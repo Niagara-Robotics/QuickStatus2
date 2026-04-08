@@ -6,6 +6,8 @@
 #include <frc/Timer.h>
 
 #include "ShiftWidget.h"
+#include "ntcore_c.h"
+#include "ntcore_cpp_types.h"
 
 void ShiftWidget::doThing() {
     timerLabel->setText(QString::number(GetShiftTime())+" "+QString::fromStdString(GetActiveAlliance()));
@@ -22,18 +24,21 @@ std::string ShiftWidget::GetActiveAlliance() {
     double timeLeft = GetTimeLeft();
     std::string autoWinner = GetAutoWinner();
     std::string autoLoser = (autoWinner == "R")? "B": "R";
-    
+    std::string robotState = nt::GetString(robotStateSub, "");
+    if (timeLeft <= 20 && robotState == "auto") return "A";
     if (timeLeft == -1 || timeLeft > 140 || autoWinner == "") return "";
     if (timeLeft > 130 || timeLeft <= 30) return "A"; // all active
     else if ((timeLeft > 30 && timeLeft <= 55) || 
             (timeLeft > 80 && timeLeft <= 105)
-    ) return autoLoser;
-    else return autoWinner;
+    ) return autoWinner;
+    else return autoLoser;
 }
 
 std::string ShiftWidget::GetCurrentShift() {
     double timeLeft = GetTimeLeft();
+    std::string robotState = nt::GetString(robotStateSub, "");
     if (timeLeft == -1) return "";
+    if (timeLeft <= 20 && robotState == "auto") return "Auto";
     if (timeLeft > 130) return "Transition";
     else if (timeLeft > 30) return "Shift " + std::to_string(int(ceil((131-timeLeft) / 25.0)));
     else return "End Game";
@@ -49,7 +54,9 @@ double ShiftWidget::GetShiftTime() {
 
 double ShiftWidget::GetShiftTimeMax() {
     double timeLeft = GetTimeLeft();
+    std::string robotState = nt::GetString(robotStateSub, "");
     if (timeLeft == -1) return -1;
+    if (timeLeft <= 20 && robotState == "auto") return 20;
     if (timeLeft > 130) return 10;
     else if (timeLeft > 30) return 25;
     else return 30;
@@ -66,6 +73,9 @@ void ShiftWidget::SetupNT() {
     isRedSub = nt::Subscribe(nt::GetTopic(
         inst, "/FMSInfo/IsRedAlliance"), NT_BOOLEAN, "boolean"
     );
+    robotStateSub = nt::Subscribe(nt::GetTopic(
+        inst, "/SmartDashboard/robotState"), NT_STRING, "string"
+    );
 }
 
 std::string ShiftWidget::GetAutoWinner() {
@@ -75,7 +85,7 @@ std::string ShiftWidget::GetAutoWinner() {
 
 double ShiftWidget::GetTimeLeft() {
     auto matchTime = nt::GetDouble(matchTimeSub, -1);
-    return (matchTime<0)? -1: matchTime;
+    return (matchTime<0)? -1: ceil(matchTime);
 }
 
 void ShiftWidget::paintEvent(QPaintEvent* event) {
@@ -102,7 +112,7 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     } else { //yippie display the timer!!
         timerLabel->setText(QString::fromStdString(fmt::format(
             "<span style='font-size: {}px;'>{}</span>",
-            pointSize*1.2, shiftTime
+            pointSize*1.2, round(shiftTime)
         )));
     }
 
