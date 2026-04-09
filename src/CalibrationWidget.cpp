@@ -17,8 +17,8 @@ void CalibrationWidget::paintEvent(QPaintEvent* event) {
     painter.setRenderHint(QPainter::LosslessImageRendering);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
     int tagCount = nt::GetInteger(tagCountSub, -1);
-    double tagDist = nt::GetInteger(tagDistSub, -1);
-    tagDist = round(tagDist*100)/100;
+    double tagDist = nt::GetDouble(tagDistSub, -1);
+    tagDist = round(tagDist*100.0)/100.0;
     bool isGyroCalibrated = nt::GetBoolean(gyroCalibratedSub, false);
     bool manualCalibrated = nt::GetBoolean(manualCalibratedSub, false);
     
@@ -31,19 +31,19 @@ void CalibrationWidget::paintEvent(QPaintEvent* event) {
 
     painter.drawRect(tagRect);
     // painter.drawRect(tagRect);
-    painter.setFont(QFont("B612", widgetSize*0.75, 900));
+    painter.setFont(QFont("B612", widgetSize*0.6, 900));
     painter.setPen(QColor("#FFFFFF"));
 
     QTextOption textOption = QTextOption();
     textOption.setAlignment(Qt::AlignCenter);
 
     painter.drawText(tagRect, QString::number(tagCount), textOption);
-    painter.setFont(QFont("B612", widgetSize*0.5, 900));
+    painter.setFont(QFont("B612", widgetSize*0.35, 900));
 
     textOption.setAlignment(Qt::AlignLeft);
     painter.drawText(QRect(rect().center().x(), tagCenter.y()-widgetSize*0.1, 1000, widgetSize), QString::number(tagDist)+"m");
     painter.setPen(QColor("#66FFFFFF"));
-    painter.setFont(QFont("B612", widgetSize*0.3, 900));
+    painter.setFont(QFont("B612", widgetSize*0.2, 900));
     painter.drawText(QRect(rect().center().x(), tagCenter.y()-widgetSize*0.4, 1000, widgetSize), "Avg. Dist");
 
     QString currentMode;
@@ -60,7 +60,7 @@ void CalibrationWidget::paintEvent(QPaintEvent* event) {
         painter.setPen(Constants::OVERRIDE);
     }
     textOption.setAlignment(Qt::AlignCenter);
-    painter.setFont(QFont("B612", widgetSize*0.5, 900));
+    painter.setFont(QFont("B612", widgetSize*0.35, 900));
 
     painter.drawText(QRect(0,rect().center().y(),width(),height()*0.4), currentMode, textOption);
 }
