@@ -28,25 +28,19 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     painter.setRenderHint(QPainter::LosslessImageRendering);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
     
-    int leftShooterStatus = nt::GetInteger(leftShooterStatusSub, -1);
-    int rightShooterStatus = nt::GetInteger(rightShooterStatusSub, -1);
-    int leftFeederStatus = nt::GetInteger(leftFeederStatusSub, -1);
-    int rightFeederStatus = nt::GetInteger(rightFeederStatusSub, -1);
+    int wideShooterStatus = nt::GetInteger(wideShooterStatusSub, -1);
+    int wideFeederStatus = nt::GetInteger(wideFeederStatusSub, -1);
     
     double targetRPS = nt::GetDouble(targetRPSSub, -1);
-    double leftShooterRPS = nt::GetDouble(leftShooterRPSSub, -1);
-    double rightShooterRPS = nt::GetDouble(rightShooterRPSSub, -1);
+    double wideShooterRPS = nt::GetDouble(wideShooterRPSSub, -1);
     double manualShooterRPS = nt::GetDouble(manualShooterRPSSub, -1);
 
-    double leftFeederRPS = nt::GetDouble(leftFeederRPSSub, -1);
-    double rightFeederRPS = nt::GetDouble(rightFeederRPSSub, -1);
+    double wideFeederRPS = nt::GetDouble(wideFeederRPSSub, -1);
 
     bool driverAssistedMode = nt::GetBoolean(driverAssistedModeSub, true);
 
-    totalLeftFeederRPS += leftFeederRPS;
-    totalLeftShooterRPS += leftShooterRPS;
-    totalRightFeederRPS += rightFeederRPS;
-    totalRightShooterRPS += rightShooterRPS;
+    totalWideFeederRPS += wideFeederRPS;
+    totalWideShooterRPS += wideShooterRPS;
 
     // draw RPS text
 
@@ -80,7 +74,6 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     QSizeF shooterSize = QSize(shooterSizeVal,shooterSizeVal);
     shooterRect.setSize(shooterSize);
     shooterRect.moveCenter(rect().center());
-    shooterRect.adjust(-shooterDist*1.2, 0,-shooterDist*1.2,0);
 
     QRectF outlineRect = shooterRect;
     QSizeF outlineSize = shooterSize*2.5;
@@ -89,51 +82,46 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
     painter.setFont(QFont("B612 Mono", textSize*0.4, 100));
 
-    for (int i=0; i<2; i++) {
-        int shooterStatus = ((i==0)? leftShooterStatus: rightShooterStatus);
-        int totalShooterRPS = ((i==0)? totalLeftShooterRPS: totalRightShooterRPS);
-        int shooterRPS = ((i==0)? leftShooterRPS: rightShooterRPS);
-        createIconFromSvg(outline, "#FFFFFF", outlineSize.toSize()*2).paint(&painter, outlineRect.toRect());
-        
-        QColor shooterColour = getStatusColour(shooterStatus);
-        shooterColour.setAlpha((shooterStatus == -1)? 150: 255);
-        // render shooter
+    // ## draw shooter ##
 
-        if (shooterRPS != -1) {
-            painter.translate(shooterRect.center());
-            painter.rotate(-totalShooterRPS*0.1);
-            painter.translate(-shooterRect.center());
-        }
+    createIconFromSvg(outline, "#FFFFFF", outlineSize.toSize()*2).paint(&painter, outlineRect.toRect());
+    
+    QColor shooterColour = getStatusColour(wideShooterStatus);
+    shooterColour.setAlpha((wideShooterStatus == -1)? 150: 255);
+    // render shooter
 
-        createIconFromSvg(wheel_10, shooterColour, shooterSize.toSize()*2).paint(&painter, shooterRect.toRect());
-        painter.resetTransform();
-        
-        painter.drawText(shooterRect, Qt::AlignCenter, (shooterRPS == -1)? "—": QString::number(shooterRPS));
-        // render feeder
-        int feederStatus = ((i==0)? leftFeederStatus: rightFeederStatus);
-        int totalFeederRPS = ((i==0)? totalLeftFeederRPS: totalRightFeederRPS);
-        int feederRPS = ((i==0)? leftFeederRPS: rightFeederRPS);
-
-        QColor feederColour = getStatusColour(feederStatus);
-        feederColour.setAlpha((feederStatus == -1)? 150: 255);
-        
-        QRectF feederRect = shooterRect.adjusted(0,feederDist,0,feederDist);
-        QSizeF feederSize = shooterSize*0.7;
-        QPointF feederCenter = feederRect.center();
-        feederRect.setSize(feederSize);
-        feederRect.moveCenter(feederCenter);
-
-        if (feederRPS != -1) {
-            painter.translate(feederRect.center());
-            painter.rotate(-totalFeederRPS*0.1);
-            painter.translate(-feederRect.center());
-        }
-
-        createIconFromSvg(wheel_8, feederColour, shooterSize.toSize()*2).paint(&painter, feederRect.toRect());
-        painter.resetTransform();
-        shooterRect.adjust(shooterDist*2,0,shooterDist*2,0);
-        outlineRect.adjust(shooterDist*2,0,shooterDist*2,0);
+    if (wideShooterRPS != -1) {
+        painter.translate(shooterRect.center());
+        painter.rotate(-totalWideShooterRPS*0.1);
+        painter.translate(-shooterRect.center());
     }
+
+    createIconFromSvg(wheel_10, shooterColour, shooterSize.toSize()*2).paint(&painter, shooterRect.toRect());
+    painter.resetTransform();
+    
+    painter.drawText(shooterRect, Qt::AlignCenter, (wideShooterRPS == -1)? "—": QString::number(round(wideShooterRPS)));
+    // render feeder
+
+    QColor feederColour = getStatusColour(wideFeederStatus);
+    feederColour.setAlpha((wideFeederStatus == -1)? 150: 255);
+    
+    QRectF feederRect = shooterRect.adjusted(0,feederDist,0,feederDist);
+    QSizeF feederSize = shooterSize*0.7;
+    QPointF feederCenter = feederRect.center();
+    feederRect.setSize(feederSize);
+    feederRect.moveCenter(feederCenter);
+
+    if (wideFeederRPS != -1) {
+        painter.translate(feederRect.center());
+        painter.rotate(-totalWideFeederRPS*0.1);
+        painter.translate(-feederRect.center());
+    }
+
+    createIconFromSvg(wheel_8, feederColour, shooterSize.toSize()*2).paint(&painter, feederRect.toRect());
+    painter.resetTransform();
+
+    painter.setFont(QFont("B612 Mono", textSize*0.3, 100));
+    painter.drawText(feederRect, Qt::AlignCenter, (wideFeederRPS == -1)? "—": QString::number(round(wideFeederRPS)));
 }
 
 ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
@@ -141,32 +129,22 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
 
     inst = nt::GetDefaultInstance();
 
-    leftShooterStatusSub = nt::Subscribe(nt::GetTopic(
+    wideShooterStatusSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/Shooters/leftShooterStatus"), NT_INTEGER, "int"
     );
-    rightShooterStatusSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/Shooters/rightShooterStatus"), NT_INTEGER, "int"
-    );
 
-    leftFeederStatusSub = nt::Subscribe(nt::GetTopic(
+    wideFeederStatusSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/leftFeederStatus"), NT_INTEGER, "int"
     );
-    rightFeederStatusSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/rightFeederStatus"), NT_INTEGER, "int"
-    );
 
-    leftShooterRPSSub = nt::Subscribe(nt::GetTopic(
+    wideShooterRPSSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/Shooters/Left RPS"), NT_DOUBLE, "double"
     );
-    rightShooterRPSSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/Shooters/Right RPS"), NT_DOUBLE, "double"
-    );
-    leftFeederRPSSub = nt::Subscribe(nt::GetTopic(
+
+    wideFeederRPSSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/leftFeederCurrentSpeed"), NT_DOUBLE, "double"
     );
-    rightFeederRPSSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/rightFeederCurrentSpeed"), NT_DOUBLE, "double"
-    );
+
     targetRPSSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/Shooters/Target RPS"), NT_DOUBLE, "double"
     );
