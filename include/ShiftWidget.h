@@ -13,13 +13,22 @@ public:
     explicit ShiftWidget(QWidget* parent = nullptr);
     ~ShiftWidget() {}
 
-    double GetTimeLeft();
+    static void shouldUpdate();
+
+    enum class Shift {
+        NONE,
+        RED,
+        BLUE,
+        ALL
+    };
+
+    double GetMatchTimeLeft();
     double GetShiftTime();
     double GetShiftTimeMax();
-    std::string GetCurrentAlliance();
-    std::string GetCurrentShift();
-    std::string GetAutoWinner();
-    std::string GetActiveAlliance();
+    Shift GetCurrentAlliance();
+    std::string GetCurrentShiftString();
+    std::string GetAutoWinnerString();
+    Shift GetActiveAlliance();
     void SetupNT();
     void doThing(); //testing
     NT_Inst inst;
@@ -30,7 +39,18 @@ public:
     QLabel* timerLabel = new QLabel();
 
 private:
+    double matchTimeLeft = -2;
+    double lastMatchTimeLeft = -1;
+    double shiftTime = -1;
+    double shiftTimeMax = -1;
+    double timeLeft = -1;
+    Shift activeAlliance = Shift::NONE;
+    Shift currentAlliance = Shift::NONE;
+    std::string robotState = "";
+    std::string autoWinnerString = "";
 
+    double testing;
+    
 protected:
     void paintEvent(QPaintEvent* event) override;
 };

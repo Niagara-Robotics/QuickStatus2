@@ -3,40 +3,29 @@
 #include <QPainter>
 
 #include <cmath>
+#include <cstddef>
 #include <frc/Timer.h>
 
 #include "ShiftWidget.h"
-#include "ntcore_c.h"
-#include "ntcore_cpp_types.h"
 
-void ShiftWidget::doThing() {
-    timerLabel->setText(QString::number(GetShiftTime())+" "+QString::fromStdString(GetActiveAlliance()));
-}
-
-std::string ShiftWidget::GetCurrentAlliance() {
-    if (! nt::GetTopicExists(isRedSub)) return "";
+ShiftWidget::Shift ShiftWidget::GetCurrentAlliance() {
+    if (! nt::GetTopicExists(isRedSub)) return Shift::NONE;
     bool isRedAlliance = nt::GetBoolean(isRedSub, false);
-    std::string alliance = (isRedAlliance == true)? "R": "B";
+    Shift alliance = (isRedAlliance == true)? Shift::RED: Shift::BLUE;
     return alliance;
 }
 
-std::string ShiftWidget::GetActiveAlliance() {
-    double timeLeft = GetTimeLeft();
-    std::string autoWinner = GetAutoWinner();
-    std::string autoLoser = (autoWinner == "R")? "B": "R";
-    std::string robotState = nt::GetString(robotStateSub, "");
-    if (timeLeft <= 20 && robotState == "auto") return "A";
-    if (timeLeft == -1 || timeLeft > 140 || autoWinner == "") return "";
-    if (timeLeft > 130 || timeLeft <= 30) return "A"; // all active
+ShiftWidget::Shift ShiftWidget::GetActiveAlliance() {
+    if (timeLeft <= 20 && robotState == "auto") return Shift::ALL;
+    if (timeLeft == -1 || timeLeft > 140 || autoWinnerString == "") return Shift::NONE;
+    if (timeLeft > 130 || timeLeft <= 30) return Shift::ALL; // all active
     else if ((timeLeft > 30 && timeLeft <= 55) || 
             (timeLeft > 80 && timeLeft <= 105)
-    ) return autoWinner;
-    else return autoLoser;
+    ) return (autoWinnerString == "R")? Shift::RED: Shift::BLUE; // return winner
+    else return (autoWinnerString == "R")? Shift::BLUE: Shift::RED; // return loser
 }
 
-std::string ShiftWidget::GetCurrentShift() {
-    double timeLeft = GetTimeLeft();
-    std::string robotState = nt::GetString(robotStateSub, "");
+std::string ShiftWidget::GetCurrentShiftString() {
     if (timeLeft == -1) return "";
     if (timeLeft <= 20 && robotState == "auto") return "Auto";
     if (timeLeft > 130) return "Transition";
@@ -45,7 +34,6 @@ std::string ShiftWidget::GetCurrentShift() {
 }
 
 double ShiftWidget::GetShiftTime() {
-    double timeLeft = GetTimeLeft();
     if (timeLeft == -1) return -1;
     if (timeLeft > 130) return timeLeft - 130;
     else if (timeLeft > 30) return - fmod(6-timeLeft, 25)+1;
@@ -53,8 +41,6 @@ double ShiftWidget::GetShiftTime() {
 }
 
 double ShiftWidget::GetShiftTimeMax() {
-    double timeLeft = GetTimeLeft();
-    std::string robotState = nt::GetString(robotStateSub, "");
     if (timeLeft == -1) return -1;
     if (timeLeft <= 20 && robotState == "auto") return 20;
     if (timeLeft > 130) return 10;
@@ -78,30 +64,29 @@ void ShiftWidget::SetupNT() {
     );
 }
 
-std::string ShiftWidget::GetAutoWinner() {
-    std::string gabeMessage = nt::GetString(gameMessageSub, "");
-    return gabeMessage; //gabe has taken over FRC and is infecting my variable names
-}
-
-double ShiftWidget::GetTimeLeft() {
-    auto matchTime = nt::GetDouble(matchTimeSub, -1);
+double ShiftWidget::GetMatchTimeLeft() {
+    double matchTime = nt::GetDouble(matchTimeSub, -1);
     return (matchTime<0)? -1: ceil(matchTime);
 }
 
-void ShiftWidget::paintEvent(QPaintEvent* event) {
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setRenderHint(QPainter::LosslessImageRendering);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform);
-    
-    double shiftTime = GetShiftTime();
+void ShiftWidget::paintEvent(QPaintEvent* event) {  
+    robotState = nt::GetString(robotStateSub, "");
+    // matchTimeLeft = GetMatchTimeLeft();
     double blinkClock = frc::GetTime().value();
     double blinkSpeed = 3;
     double minSize = fmin(timerLabel->width(), timerLabel->height())*1.1;
     bool isBlinkVisible = (fmod(blinkClock*blinkSpeed, 1) > 0.5);
-    std::string activeAlliance = GetActiveAlliance();
-    std::string currentAlliance = GetCurrentAlliance();
-
+    if (matchTimeLeft != lastMatchTimeLeft) {
+        shiftTime = GetShiftTime();
+        activeAlliance = GetActiveAlliance();
+        currentAlliance = GetCurrentAlliance();
+        timeLeft = GetMatchTimeLeft();
+        autoWinnerString = nt::GetString(gameMessageSub, "");
+    }
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::LosslessImageRendering);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
     //timer display
     float pointSize = minSize * 0.2;
     if (shiftTime == -1) { //invalid data
@@ -122,17 +107,16 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     activeRect.setTop(-pointSize*2);
     QPoint center = rect().center();
     painter.setFont(QFont("B612", pointSize*0.4, 900));
-    if (activeAlliance == "A" || (activeAlliance == currentAlliance && activeAlliance != "")) painter.drawText(activeRect, Qt::AlignCenter, "ACTIVE");
+    if (activeAlliance == Shift::ALL || (activeAlliance == currentAlliance && activeAlliance != Shift::NONE)) painter.drawText(activeRect, Qt::AlignCenter, "ACTIVE");
     activeRect.setTop(pointSize*2);
-    painter.drawText(activeRect, Qt::AlignCenter, QString::fromStdString(GetCurrentShift()));
+    painter.drawText(activeRect, Qt::AlignCenter, QString::fromStdString(GetCurrentShiftString()));
 
-    int arcWidth = minSize * 0.8;
-    int arcHeight = arcWidth;
+    int arcSize = minSize * 0.8;
 
     //centered rect
-    QRectF boundingRect(center.x() - arcWidth / 2.0, 
-        center.y() - arcHeight / 2.0, 
-        arcWidth, arcHeight
+    QRectF boundingRect(center.x() - arcSize / 2.0, 
+        center.y() - arcSize / 2.0, 
+        arcSize, arcSize
     );
 
     pen.setWidth(minSize*0.1);
@@ -140,15 +124,29 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     painter.setPen(pen);
     painter.drawArc(boundingRect, 0, 5760);
 
-    std::string allianceColour = (activeAlliance == "R")? "#e22e43": "#3bb1ff";
-    allianceColour = (activeAlliance == "")? "#77FFFFFF": allianceColour;
-    if (activeAlliance == "A") allianceColour = "#FFFFFF";
-
-    double shiftTimeMax = GetShiftTimeMax();
+    std::string allianceColour;
+    switch (activeAlliance) {
+        case Shift::ALL: {
+            allianceColour = "#FFFFFF";
+            break;
+        }
+        case Shift::RED: {
+            allianceColour = "#e22e43";
+            break;
+        }
+        case Shift::BLUE: {
+            allianceColour = "#3bb1ff";
+            break;
+        }
+        default:
+            allianceColour = "#77FFFFFF";
+    }
+    
+    if (matchTimeLeft != lastMatchTimeLeft) shiftTimeMax = GetShiftTimeMax();
     int startAngle = 90;
     int spanAngle = shiftTime/shiftTimeMax * 360 * 16;
     if (shiftTime != -1) {
-        if (isBlinkVisible && activeAlliance == currentAlliance && activeAlliance != "") {
+        if (isBlinkVisible && activeAlliance == currentAlliance && activeAlliance != Shift::NONE) {
             pen.setColor("#FFFFFF");
             painter.setPen(pen);
             painter.drawArc(boundingRect, startAngle * 16, spanAngle);
@@ -159,6 +157,7 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
         painter.setPen(pen);
         painter.drawArc(boundingRect, startAngle * 16, spanAngle);
     }
+    lastMatchTimeLeft = matchTimeLeft;
 }
 
 ShiftWidget::ShiftWidget(QWidget* parent):QWidget(parent) {
@@ -172,4 +171,5 @@ ShiftWidget::ShiftWidget(QWidget* parent):QWidget(parent) {
 
     timerLabel->setFont(QFont("B612 Mono"));
     timerLabel->setAlignment(Qt::AlignCenter);
+    testing = frc::GetTime().value();
 }

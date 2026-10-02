@@ -3,6 +3,8 @@
 #include <QWidget>
 #include <QTimer>
 #include <QSvgRenderer>
+#include <QtGui/qpixmap.h>
+#include <QtWidgets/qwidget.h>
 #include <ntcore.h>
 
 class ShooterWidget : public QWidget {
@@ -27,9 +29,31 @@ public:
     double totalWideShooterRPS;
     double totalWideFeederRPS;
 
+    double textSize;
+    QRect rpsRect;
+
+    double feederDist;
+    static inline QRectF shooterRect = QRectF(0,0,100,100);
+    QSizeF shooterSize;
+
+    QRectF outlineRect;
+    QSizeF outlineSize;
+
 private:
-    QIcon createIconFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size);
+    QPixmap createPixmapFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size);
+    QPixmap cachedWheel10;
+    QPixmap cachedWheel8;
+    QPixmap cachedOutline;
+    int lastShooterStatus = -2; // track changes to regenerate color
+    int lastFeederStatus = -2;
+
+    QFont rpsFont;
+    QFont targetFont;
+    QFont shooterFont;
+    QFont feederFont;
+    QRect targetRect; // Cache the bounding box too!
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void resizeEvent(QResizeEvent *event);
 };

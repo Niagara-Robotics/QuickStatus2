@@ -1,12 +1,12 @@
 #include <QGridLayout>
 #include <QSettings>
+#include <QtCore/qdebug.h>
 #include <QtCore/qnamespace.h>
 #include <QtWidgets/qwidget.h>
 
 #include "MainWindow.h"
 #include "AutoWidget.h"
 #include "ControlModeWidget.h"
-#include "FuelWidget.h"
 #include "ShiftWidget.h"
 #include "ShooterWidget.h"
 #include "SpacerWidget.h"
@@ -52,30 +52,37 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
 
     static QDockWidget* shiftWidget = createNewWidget(new ShiftWidget(this));
     static QDockWidget* autoWidget = createNewWidget(new AutoWidget(this));
-    static QDockWidget* fuelWidget = createNewWidget(new FuelWidget(this));
     static QDockWidget* swerveWidget = createNewWidget(new SwerveWidget(this));
     static QDockWidget* shooterWidget = createNewWidget(new ShooterWidget(this));
     static QDockWidget* controlModeWidget = createNewWidget(new ControlModeWidget(this));
     static QDockWidget* driveSpacer = createNewWidget(new SpacerWidget(this));
-    static QDockWidget* calibrationWidfget = createNewWidget(new CalibrationWidget(this));
+    static QDockWidget* calibrationWidget = createNewWidget(new CalibrationWidget(this));
     
     static QWidget* shiftContent = shiftWidget->widget();
     static QWidget* swerveContent = swerveWidget->widget();
     static QWidget* shooterContent = shooterWidget->widget();
-    static QWidget* fuelContent = fuelWidget->widget();
-    static QWidget* calibrationContent = calibrationWidfget->widget();
+    static QWidget* calibrationContent = calibrationWidget->widget();
+    static NT_Inst inst = nt::GetDefaultInstance();
+    static bool isConnected = false;
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
     QTimer* refreshTimer = new QTimer(this);
     refreshTimer->setTimerType(Qt::CoarseTimer);
     connect(refreshTimer, &QTimer::timeout, this, [this]() {
-        shiftContent->update();
-        swerveContent->update();
-        shooterContent->update();
-        fuelContent->update();
-        calibrationContent->update();
+        if (!isConnected) return;
+        if (shiftWidget->isVisible()) shiftWidget->update();
+        if (swerveWidget->isVisible()) swerveContent->update();
+        if (shooterWidget->isVisible()) shooterContent->update();
     });
     refreshTimer->start(33);
+
+    QTimer* lessImportantTimer = new QTimer(this);
+    lessImportantTimer->setTimerType(Qt::CoarseTimer);
+    connect(lessImportantTimer, &QTimer::timeout, this, [this]() {
+        isConnected = nt::IsConnected(inst);
+        if (calibrationWidget->isVisible()) calibrationContent->update();
+    });
+    lessImportantTimer->start(500);
 }
 
 void MainWindow::restoreApplicationState()

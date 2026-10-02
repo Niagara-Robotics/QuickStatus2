@@ -24,25 +24,24 @@ float LerpAngleDegrees(float a, float b, float t) {
     return NormalizeAngle(a + diff * t);
 }
 
+QPixmap SwerveWidget::createPixmapFromSvg(QSvgRenderer& renderer, QSize size) {
+    QPixmap pixmap(size);
+    pixmap.fill(Qt::transparent);
+
+    QPainter painter(&pixmap);
+    renderer.render(&painter);
+
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn); 
+    painter.fillRect(pixmap.rect(), QBrush("#FFFFFF")); 
+
+    painter.end();
+    return pixmap;
+}
+
 void flipCanvas(QPainter &painter, QPointF center) {
     painter.translate(center);
     painter.scale(1, -1); //flip vertically
     painter.translate(-center);
-}
-
-QIcon SwerveWidget::createIconFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size) {
-    QPixmap pixmap(size);
-    pixmap.fill(Qt::transparent); // Start with a transparent canvas
-
-    QPainter painter(&pixmap);
-    renderer.render(&painter); // Render the SVG (destination)
-
-    // Apply the new color as the source, using the SVG's alpha channel
-    painter.setCompositionMode(QPainter::CompositionMode_SourceIn); 
-    painter.fillRect(pixmap.rect(), QBrush(color)); // Fill with the desired color
-
-    painter.end();
-    return QIcon(pixmap);
 }
 
 void SwerveWidget::paintEvent(QPaintEvent *event) {
@@ -90,8 +89,10 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
 
         if (rotArray.empty()) painter.setOpacity(0.5);
         else painter.setOpacity(1);
-        QIcon baseIcon = createIconFromSvg(baseRender, alignColour, baseRect.size()*2);
-        baseIcon.paint(&painter, baseRect);
+        if (cachedBase.isNull()) {
+            cachedBase = createPixmapFromSvg(baseRender, QSize(baseSize, baseSize) * 4);
+        }
+        painter.drawPixmap(baseRect, cachedBase);
 
         if (wheelPosStruct.empty()) painter.setOpacity(0.5);
         else painter.setOpacity(1);
@@ -136,12 +137,13 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
             // if (velocity != 0 || power != 0) qDebug()<<velocity<<power;
 
             //draw wheel
-            // wheelRender.render(&painter, wheelRect);
-            QIcon wheelIcon = createIconFromSvg(wheelRender, Qt::white, wheelRect.toRect().size()*2);
-            wheelIcon.paint(&painter, wheelRect.toRect());
+            if (cachedWheel.isNull()) {
+                cachedWheel = createPixmapFromSvg(wheelRender, QSize(wheelSize, wheelSize) * 4);
+            }
+            painter.drawPixmap(wheelRect.toRect(), cachedWheel);
+
             painter.restore();
         }
-        painter.resetTransform();
     }
 }
 

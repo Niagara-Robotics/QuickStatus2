@@ -2,24 +2,53 @@
 #include "Constants.h"
 #include <QPainter>
 #include <QtCore/qnamespace.h>
+#include <QtCore/qsize.h>
 #include <QtGui/qcolor.h>
+#include <QtGui/qicon.h>
 #include <QtGui/qtransform.h>
 #include <QtSvg/qsvgrenderer.h>
 #include <QtWidgets/qlayoutitem.h>
+#include <QtWidgets/qwidget.h>
 
-QIcon ShooterWidget::createIconFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size) {
+QPixmap ShooterWidget::createPixmapFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size) {
     QPixmap pixmap(size);
-    pixmap.fill(Qt::transparent); // Start with a transparent canvas
+    pixmap.fill(Qt::transparent);
 
     QPainter painter(&pixmap);
-    renderer.render(&painter); // Render the SVG (destination)
+    renderer.render(&painter);
 
-    // Apply the new color as the source, using the SVG's alpha channel
     painter.setCompositionMode(QPainter::CompositionMode_SourceIn); 
-    painter.fillRect(pixmap.rect(), QBrush(color)); // Fill with the desired color
+    painter.fillRect(pixmap.rect(), QBrush(color)); 
 
     painter.end();
-    return QIcon(pixmap);
+    return pixmap;
+}
+
+void ShooterWidget::resizeEvent(QResizeEvent *event) {
+    QRect widgetRect = rect();
+    textSize = fmin(width(), height())*0.21;
+    rpsRect = widgetRect.adjusted(0, -textSize*2.5, 0, 0);
+
+    feederDist = textSize*1.1;
+    shooterRect = widgetRect;
+    shooterSize = QSize(textSize,textSize);
+    shooterRect.setSize(shooterSize);
+    shooterRect.moveCenter(widgetRect.center());
+
+    outlineSize = shooterSize*2.5;
+    outlineRect = shooterRect;
+    outlineRect.setSize(outlineSize);
+    outlineRect.adjust(-textSize*0.5,0,-textSize*0.5,0);
+
+    rpsFont = QFont("B612", textSize, 900);
+    targetFont = QFont("B612", textSize * 0.32, 900);
+    shooterFont = QFont("B612 Mono", textSize * 0.4, 100);
+    feederFont = QFont("B612 Mono", textSize * 0.3, 100);
+
+    // Compute the bounding box once here
+    targetRect = QFontMetrics(targetFont).boundingRect("40 RPS");
+    targetRect.moveCenter(rpsRect.center());
+    targetRect.adjust(0, -textSize * 0.3, 0, 0);
 }
 
 void ShooterWidget::paintEvent(QPaintEvent *event) {
@@ -43,10 +72,6 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     totalWideShooterRPS += wideShooterRPS;
 
     // draw RPS text
-
-    double textSize = fmin(width(), height())*0.21;
-    QRect rpsRect = rect();
-    rpsRect.adjust(0, -textSize*2.5, 0, 0);
     
     QString rpsText;
     if (driverAssistedMode) rpsText = ((targetRPS != -1)? QString::number(round(targetRPS)): "—")+" RPS";
@@ -55,40 +80,34 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     painter.setPen(QPen("#FFFFFF"));
     if (!driverAssistedMode) painter.setOpacity(1);
     else painter.setOpacity(0.5);
-    painter.setFont(QFont("B612", textSize, 900));
+    painter.setFont(rpsFont);
     painter.drawText(rpsRect, Qt::AlignCenter, rpsText);
 
     QRect targetRect = QFontMetrics(painter.font()).boundingRect("40 RPS");
     targetRect.moveCenter(rpsRect.center());
     targetRect.adjust(0, -textSize*0.3, 0, 0);
 
-    painter.setFont(QFont("B612", textSize*0.32, 900));
+    painter.setFont(targetFont);
     painter.drawText(targetRect, Qt::AlignTop, "Target");
-
+    
     painter.setOpacity(1);
-
-    double shooterDist = textSize*1;
-    double feederDist = textSize*1.1;
-    QRectF shooterRect = rect();
-    double shooterSizeVal = textSize;
-    QSizeF shooterSize = QSize(shooterSizeVal,shooterSizeVal);
-    shooterRect.setSize(shooterSize);
-    shooterRect.moveCenter(rect().center());
-
-    QRectF outlineRect = shooterRect;
-    QSizeF outlineSize = shooterSize*2.5;
-    outlineRect.setSize(outlineSize);
-    outlineRect.adjust(-shooterSizeVal*0.5,0,-shooterSizeVal*0.5,0);
-
-    painter.setFont(QFont("B612 Mono", textSize*0.4, 100));
+    painter.setFont(shooterFont);
 
     // ## draw shooter ##
 
-    createIconFromSvg(outline, "#FFFFFF", outlineSize.toSize()*2).paint(&painter, outlineRect.toRect());
+    if (cachedOutline.isNull()) {
+        cachedOutline = createPixmapFromSvg(outline, "#FFFFFF", outlineSize.toSize() * 4);
+    }
+    painter.drawPixmap(outlineRect.toRect(), cachedOutline);
     
     QColor shooterColour = getStatusColour(wideShooterStatus);
     shooterColour.setAlpha((wideShooterStatus == -1)? 150: 255);
+    
     // render shooter
+    if (cachedWheel10.isNull() || wideShooterStatus != lastShooterStatus) {
+        cachedWheel10 = createPixmapFromSvg(wheel_10, shooterColour, shooterSize.toSize() * 4);
+        lastShooterStatus = wideShooterStatus;
+    }
 
     if (wideShooterRPS != -1) {
         painter.translate(shooterRect.center());
@@ -96,7 +115,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
         painter.translate(-shooterRect.center());
     }
 
-    createIconFromSvg(wheel_10, shooterColour, shooterSize.toSize()*2).paint(&painter, shooterRect.toRect());
+    painter.drawPixmap(shooterRect.toRect(), cachedWheel10);
     painter.resetTransform();
     
     painter.drawText(shooterRect, Qt::AlignCenter, (wideShooterRPS == -1)? "—": QString::number(round(wideShooterRPS)));
@@ -111,16 +130,23 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     feederRect.setSize(feederSize);
     feederRect.moveCenter(feederCenter);
 
+    if (cachedWheel8.isNull() || wideFeederStatus != lastFeederStatus) {
+        cachedWheel8 = createPixmapFromSvg(wheel_8, feederColour, feederSize.toSize() * 4);
+        lastFeederStatus = wideFeederStatus;
+    }
+    
     if (wideFeederRPS != -1) {
         painter.translate(feederRect.center());
         painter.rotate(-totalWideFeederRPS*0.1);
         painter.translate(-feederRect.center());
     }
+    
+    painter.drawPixmap(feederRect.toRect(), cachedWheel8);
 
-    createIconFromSvg(wheel_8, feederColour, shooterSize.toSize()*2).paint(&painter, feederRect.toRect());
+    // createIconFromSvg(wheel_8, feederColour, shooterSize.toSize()*2).paint(&painter, feederRect.toRect());
     painter.resetTransform();
 
-    painter.setFont(QFont("B612 Mono", textSize*0.3, 100));
+    painter.setFont(feederFont);
     painter.drawText(feederRect, Qt::AlignCenter, (wideFeederRPS == -1)? "—": QString::number(round(wideFeederRPS)));
 }
 
@@ -130,19 +156,19 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
     inst = nt::GetDefaultInstance();
 
     wideShooterStatusSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/Shooters/leftShooterStatus"), NT_INTEGER, "int"
+        inst, "/SmartDashboard/Shooters/shooterStatus"), NT_INTEGER, "int"
     );
 
     wideFeederStatusSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/leftFeederStatus"), NT_INTEGER, "int"
+        inst, "/SmartDashboard/feederStatus"), NT_INTEGER, "int"
     );
 
     wideShooterRPSSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/Shooters/Left RPS"), NT_DOUBLE, "double"
+        inst, "/SmartDashboard/Shooters/Shooter RPS"), NT_DOUBLE, "double"
     );
 
     wideFeederRPSSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/leftFeederCurrentSpeed"), NT_DOUBLE, "double"
+        inst, "/SmartDashboard/feederCurrentSpeed"), NT_DOUBLE, "double"
     );
 
     targetRPSSub = nt::Subscribe(nt::GetTopic(

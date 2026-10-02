@@ -11,6 +11,7 @@ void StatusBar::ConnectionListenerCallback(nt::Event event) {
         connectionState = true;
     } else if (event.Is(nt::EventFlags::kDisconnected)) {
         connectionState = false;
+        this->parentWidget()->update();
     }
     updateStatus();
 }
