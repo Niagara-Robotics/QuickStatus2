@@ -185,3 +185,75 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {
 QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
     background: #2b2b2b;
 }
+
+#shooterButton, #swerveButton, #shiftButton, #visionButton, #autoButton, #spacerButton, #controlModeButton {
+    border-radius: 3px;
+}
+#shooterButton::hover, #swerveButton::hover, #shiftButton::hover, #visionButton::hover, #autoButton::hover, #spacerButton::hover, #controlModeButton::hover {
+    background: #11FFFFFF;
+}
+#shooterButton::pressed, #swerveButton::pressed, #shiftButton::pressed, #visionButton::pressed, #autoButton::pressed, #spacerButton::pressed, #controlModeButton::pressed {
+    background: #22FFFFFF;
+}
+/* #genericButton::hover, #autoEditButton::hover {
+    border-image: url(":/images/auto/edit_hover");
+}
+#genericButton::pressed, #autoEditButton::pressed {
+    border-image: url(":/images/auto/edit_press");
+} */
+
+#shooterButton {
+    border-image: url(":/images/status_bar/disabled/shooter");
+}
+#shooterButton::checked {
+    border-image: url(":/images/status_bar/shooter");
+}
+
+#swerveButton {
+    border-image: url(":/images/status_bar/disabled/swerve");
+}
+#swerveButton::checked {
+    border-image: url(":/images/status_bar/swerve");
+}
+
+#shiftButton {
+    border-image: url(":/images/status_bar/disabled/shift");
+}
+#shiftButton::checked {
+    border-image: url(":/images/status_bar/shift");
+}
+
+#visionButton {
+    border-image: url(":/images/status_bar/disabled/vision");
+}
+#visionButton::checked {
+    border-image: url(":/images/status_bar/vision");
+}
+
+#autoButton {
+    border-image: url(":/images/status_bar/disabled/auto");
+}
+#autoButton::checked {
+    border-image: url(":/images/status_bar/auto");
+}
+
+#spacerButton {
+    border-image: url(":/images/status_bar/disabled/spacer");
+}
+#spacerButton::checked {
+    border-image: url(":/images/status_bar/spacer");
+}
+
+#controlModeButton {
+    border-image: url(":/images/status_bar/disabled/control_mode");
+}
+#controlModeButton::checked {
+    border-image: url(":/images/status_bar/control_mode");
+}
+
+#tooltip {
+    background-color: #1b1b1b;
+    border-radius: 4px;
+    padding: 4px 6px;
+    padding-right: 4px;
+}

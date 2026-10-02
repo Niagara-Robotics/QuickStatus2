@@ -1,5 +1,9 @@
 #include <QSettings>
 #include <QPushButton>
+#include <QtCore/qnamespace.h>
+#include <QtWidgets/qpushbutton.h>
+#include <QtWidgets/qwidget.h>
+#include <QEvent>
 
 #include "networktables/NetworkTableInstance.h"
 
@@ -57,6 +61,68 @@ void StatusBar::openPopup() {
 //     )));
 // }
 
+QLabel* createDivider() {
+    // 1. Create the divider label
+    QLabel *divider = new QLabel();
+    QPixmap pixmap(":/images/status_bar/divider");
+    pixmap.setDevicePixelRatio(2);
+
+    // 2. Scale the divider appropriately
+    divider->setPixmap(pixmap.scaledToHeight(40, Qt::SmoothTransformation));
+    divider->setAlignment(Qt::AlignRight);
+    divider->setFixedSize(3,20);
+    divider->setObjectName("statusDivider");
+
+    return divider;
+}
+
+QPushButton* StatusBar::createToggleButton(QString name, QString displayName) {
+    QPushButton* toggleButton = new QPushButton();
+    toggleButton->setFlat(true);
+    toggleButton->setFixedSize(22,22);
+    toggleButton->setCheckable(true);
+    toggleButton->setObjectName(name);
+    toggleButton->setAccessibleName(displayName);
+
+    buttonList.append(toggleButton);
+    
+    addPermanentWidget(toggleButton);
+    if (name != "visionButton") addPermanentWidget(createDivider());
+
+    toggleButton->installEventFilter(this);
+
+    // QPoint test = mapToGlobal(toggleButton->rect().topLeft());
+    // tooltip->move(test.x(), test.y()); // puts in top right??
+
+    return toggleButton;
+}
+
+bool StatusBar::eventFilter(QObject* watched, QEvent* event) {
+    // Check if the event is coming from your button
+    QPushButton* button = qobject_cast<QPushButton*>(watched);
+
+    if (button && tooltip) {
+        if (event->type() == QEvent::Enter) {
+            tooltip->setText(button->accessibleName());
+            tooltip->adjustSize();
+            // Position the tooltip *above* the button
+            QPoint btnPos = button->mapToGlobal(QPoint(0, 0));
+            int x = btnPos.x() + (button->width() / 2) - (tooltip->width() / 2);
+            if (button->objectName() == "visionButton") x -= 15;
+            int y = btnPos.y() - tooltip->height() - 5; // 5px padding above
+
+            tooltip->move(x, y);
+            tooltip->show();
+            return true;
+        } 
+        else if (event->type() == QEvent::Leave) {
+            tooltip->hide();
+            return true;
+        }
+    }
+    return QStatusBar::eventFilter(watched, event);
+}
+
 StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     // NTPopup* popup = new NTPopup(this, this);
     setObjectName("statusBar");
@@ -78,8 +144,25 @@ StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     // latencyHeader->setFont(b612);
     // latencyStatus->setFont(QFont("B612 Mono", 16));
 
+    shiftButton = createToggleButton("shiftButton", "Alliance Shifts");
+    autoButton = createToggleButton("autoButton", "Auto Chooser");
+    swerveButton = createToggleButton("swerveButton", "Swerve");
+    shooterButton = createToggleButton("shooterButton", "Shooter");
+    controlModeButton = createToggleButton("controlModeButton", "Control Mode");
+    spacerButton = createToggleButton("spacerButton", "Spacer");
+    visionButton = createToggleButton("visionButton", "Calibration");
+
+    // connect(swerveButton, &QPushButton::clicked, this, &StatusBar::openPopup);
+
     addWidget(editButton);
     addWidget(connectionStatus);
+
+    tooltip = new RoundedTooltip("", nullptr); 
+    tooltip->setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
+    tooltip->setAttribute(Qt::WA_ShowWithoutActivating);
+    tooltip->setAttribute(Qt::WA_TranslucentBackground);
+    tooltip->setObjectName("tooltip");
+
     // addPermanentWidget(latencyHeader);
     // addPermanentWidget(latencyStatus);
 

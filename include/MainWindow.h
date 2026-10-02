@@ -1,8 +1,9 @@
 #pragma once
 
+#include "StatusBar.h"
 #include <QMainWindow>
 #include <QDockWidget>
-#include <QtCore/qtimer.h>
+
 // #include <memory>
 
 class MainWindow : public QMainWindow {
@@ -20,6 +21,8 @@ public:
 
 protected:
     void closeEvent(QCloseEvent* event) override;
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
+    StatusBar* statusBar;
 };
