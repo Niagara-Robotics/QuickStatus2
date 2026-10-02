@@ -69,8 +69,8 @@ QLabel* createDivider() {
 
     // 2. Scale the divider appropriately
     divider->setPixmap(pixmap.scaledToHeight(40, Qt::SmoothTransformation));
-    divider->setAlignment(Qt::AlignRight);
-    divider->setFixedSize(3,20);
+    divider->setAlignment(Qt::AlignCenter);
+    divider->setFixedSize(5,20);
     divider->setObjectName("statusDivider");
 
     return divider;

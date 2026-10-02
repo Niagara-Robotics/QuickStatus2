@@ -39,17 +39,16 @@ public:
     QLabel* timerLabel = new QLabel();
 
 private:
-    double matchTimeLeft = -2;
-    double lastMatchTimeLeft = -1;
+    double matchTimeLeft = -1;
+    double lastMatchTimeLeft = -2;
     double shiftTime = -1;
     double shiftTimeMax = -1;
-    double timeLeft = -1;
     Shift activeAlliance = Shift::NONE;
     Shift currentAlliance = Shift::NONE;
     std::string robotState = "";
     std::string autoWinnerString = "";
 
-    double testing;
+    double lastUpdateTime;
     
 protected:
     void paintEvent(QPaintEvent* event) override;

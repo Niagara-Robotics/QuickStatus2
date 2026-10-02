@@ -16,35 +16,35 @@ ShiftWidget::Shift ShiftWidget::GetCurrentAlliance() {
 }
 
 ShiftWidget::Shift ShiftWidget::GetActiveAlliance() {
-    if (timeLeft <= 20 && robotState == "auto") return Shift::ALL;
-    if (timeLeft == -1 || timeLeft > 140 || autoWinnerString == "") return Shift::NONE;
-    if (timeLeft > 130 || timeLeft <= 30) return Shift::ALL; // all active
-    else if ((timeLeft > 30 && timeLeft <= 55) || 
-            (timeLeft > 80 && timeLeft <= 105)
+    if (matchTimeLeft <= 20 && robotState == "auto") return Shift::ALL;
+    if (matchTimeLeft == -1 || matchTimeLeft > 140 || autoWinnerString == "") return Shift::NONE;
+    if (matchTimeLeft > 130 || matchTimeLeft <= 30) return Shift::ALL; // all active
+    else if ((matchTimeLeft > 30 && matchTimeLeft <= 55) || 
+            (matchTimeLeft > 80 && matchTimeLeft <= 105)
     ) return (autoWinnerString == "R")? Shift::RED: Shift::BLUE; // return winner
     else return (autoWinnerString == "R")? Shift::BLUE: Shift::RED; // return loser
 }
 
 std::string ShiftWidget::GetCurrentShiftString() {
-    if (timeLeft == -1) return "";
-    if (timeLeft <= 20 && robotState == "auto") return "Auto";
-    if (timeLeft > 130) return "Transition";
-    else if (timeLeft > 30) return "Shift " + std::to_string(int(ceil((131-timeLeft) / 25.0)));
+    if (matchTimeLeft == -1) return "";
+    if (matchTimeLeft <= 20 && robotState == "auto") return "Auto";
+    if (matchTimeLeft > 130) return "Transition";
+    else if (matchTimeLeft > 30) return "Shift " + std::to_string(int(ceil((131-matchTimeLeft) / 25.0)));
     else return "End Game";
 }
 
 double ShiftWidget::GetShiftTime() {
-    if (timeLeft == -1) return -1;
-    if (timeLeft > 130) return timeLeft - 130;
-    else if (timeLeft > 30) return - fmod(6-timeLeft, 25)+1;
-    else return timeLeft;
+    if (matchTimeLeft == -1) return -1;
+    if (matchTimeLeft > 130) return matchTimeLeft - 130;
+    else if (matchTimeLeft > 30) return - fmod(6-matchTimeLeft, 25)+1;
+    else return matchTimeLeft;
 }
 
 double ShiftWidget::GetShiftTimeMax() {
-    if (timeLeft == -1) return -1;
-    if (timeLeft <= 20 && robotState == "auto") return 20;
-    if (timeLeft > 130) return 10;
-    else if (timeLeft > 30) return 25;
+    if (matchTimeLeft == -1) return -1;
+    if (matchTimeLeft <= 20 && robotState == "auto") return 20;
+    if (matchTimeLeft > 130) return 10;
+    else if (matchTimeLeft > 30) return 25;
     else return 30;
 }
 
@@ -71,18 +71,20 @@ double ShiftWidget::GetMatchTimeLeft() {
 
 void ShiftWidget::paintEvent(QPaintEvent* event) {  
     robotState = nt::GetString(robotStateSub, "");
-    // matchTimeLeft = GetMatchTimeLeft();
+    matchTimeLeft = GetMatchTimeLeft();
     double blinkClock = frc::GetTime().value();
     double blinkSpeed = 3;
     double minSize = fmin(timerLabel->width(), timerLabel->height())*1.1;
     bool isBlinkVisible = (fmod(blinkClock*blinkSpeed, 1) > 0.5);
     if (matchTimeLeft != lastMatchTimeLeft) {
-        shiftTime = GetShiftTime();
+        lastUpdateTime = frc::GetTime().value();
         activeAlliance = GetActiveAlliance();
         currentAlliance = GetCurrentAlliance();
-        timeLeft = GetMatchTimeLeft();
         autoWinnerString = nt::GetString(gameMessageSub, "");
+    } else if (matchTimeLeft == -1) {
+        shiftTime = -1;
     }
+    shiftTime = GetShiftTime();
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::LosslessImageRendering);
@@ -144,7 +146,8 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     
     if (matchTimeLeft != lastMatchTimeLeft) shiftTimeMax = GetShiftTimeMax();
     int startAngle = 90;
-    int spanAngle = shiftTime/shiftTimeMax * 360 * 16;
+    double interpolateMod = blinkClock - lastUpdateTime;
+    int spanAngle = (shiftTime-interpolateMod)/shiftTimeMax * 360 * 16;
     if (shiftTime != -1) {
         if (isBlinkVisible && activeAlliance == currentAlliance && activeAlliance != Shift::NONE) {
             pen.setColor("#FFFFFF");
@@ -171,5 +174,4 @@ ShiftWidget::ShiftWidget(QWidget* parent):QWidget(parent) {
 
     timerLabel->setFont(QFont("B612 Mono"));
     timerLabel->setAlignment(Qt::AlignCenter);
-    testing = frc::GetTime().value();
 }
