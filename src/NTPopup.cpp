@@ -44,12 +44,14 @@ void NTPopup::applyAction() {
 NTPopup::NTPopup(QWidget* parent, StatusBar* statusBar):QDialog(parent) {
     reportTo = statusBar;
     setWindowFlag(Qt::WindowType::WindowStaysOnTopHint);
+    setWindowFlag(Qt::WindowType::SubWindow);
+    
     setWindowModality(Qt::WindowModality::ApplicationModal);
     // setFixedSize(300,150);
     setFixedSize(300,160);
 
     QFormLayout* layout = new QFormLayout(this);
-    setWindowTitle("Configure NetworkTable Client");
+    setWindowTitle("Configure NT4 Client");
 
     // std::vector<nt::ConnectionInfo> connections = nt::GetConnections(nt::GetDefaultInstance());
     QString initialAddress = settings.value("ntAddress").toString();

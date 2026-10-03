@@ -37,6 +37,7 @@ void AutoPopup::checkTables() {
 AutoPopup::AutoPopup(QWidget* parent, AutoWidget* autoWidget):QDialog(parent) {
     reportTo = autoWidget;
     setWindowFlag(Qt::WindowType::WindowStaysOnTopHint);
+    setWindowFlag(Qt::WindowType::SubWindow);
     setWindowModality(Qt::WindowModality::ApplicationModal);
     // setFixedSize(300,150);
     setFixedSize(300,100);

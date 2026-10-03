@@ -178,9 +178,15 @@ StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     helpButton->setFlat(true);
     helpButton->setObjectName("helpButton");
 
-    QDialog* popup = new QDialog();
-    popup->setWindowTitle("QuickStatus2 Help");
-    popup->setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint);
+    QDialog* popup = new QDialog(this);
+    popup->setWindowTitle("QuickStatus Help");
+    popup->setWindowFlags(
+        Qt::Dialog |
+        Qt::CustomizeWindowHint |
+        Qt::WindowTitleHint |
+        Qt::WindowCloseButtonHint
+    );
+    
     popup->setWindowModality(Qt::WindowModality::ApplicationModal);
     popup->setMinimumSize(360,280);
     
@@ -202,7 +208,10 @@ StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     popupLayout->addWidget(textBrowser);
 
     connect(helpButton, &QPushButton::clicked, this, [popup](){
+        popup->setWindowState(Qt::WindowNoState);
+        popup->resize(360,280);
         popup->show();
+
     });
 
     layout->addStretch();
