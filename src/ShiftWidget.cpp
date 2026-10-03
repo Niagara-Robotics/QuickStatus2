@@ -66,7 +66,7 @@ void ShiftWidget::SetupNT() {
 
 double ShiftWidget::GetMatchTimeLeft() {
     double matchTime = nt::GetDouble(matchTimeSub, -1);
-    return (matchTime<0)? -1: ceil(matchTime);
+    return (matchTime<=0)? -1: ceil(matchTime);
 }
 
 void ShiftWidget::paintEvent(QPaintEvent* event) {  

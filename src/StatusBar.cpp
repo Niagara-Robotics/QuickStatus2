@@ -1,9 +1,14 @@
 #include <QSettings>
 #include <QPushButton>
 #include <QtCore/qnamespace.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qdialog.h>
+#include <QtWidgets/qmessagebox.h>
 #include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qwidget.h>
 #include <QEvent>
+#include <QMessageBox>
+#include <QTextBrowser>
 
 #include "networktables/NetworkTableInstance.h"
 
@@ -163,6 +168,48 @@ StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     tooltip->setAttribute(Qt::WA_TranslucentBackground);
     tooltip->setObjectName("tooltip");
 
+    QWidget* container = new QWidget();
+    QHBoxLayout* layout = new QHBoxLayout(container);
+    layout->setContentsMargins(0,0,0,0);
+    layout->setSpacing(0);
+
+    QPushButton* helpButton = new QPushButton("I\'m confused!"); 
+    helpButton->setFont(b612);
+    helpButton->setFlat(true);
+    helpButton->setObjectName("helpButton");
+
+    QDialog* popup = new QDialog();
+    popup->setWindowTitle("QuickStatus2 Help");
+    popup->setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint);
+    popup->setWindowModality(Qt::WindowModality::ApplicationModal);
+    popup->setMinimumSize(360,280);
+    
+    QVBoxLayout *popupLayout = new QVBoxLayout(popup);
+    QTextBrowser *textBrowser = new QTextBrowser(popup);
+    textBrowser->setObjectName("helpText");
+    
+    QString markdownText = 
+        "# QuickStatus 2.1.7\n"
+        // "You can use **bold text**, *italics*, or `inline code` easily.\n\n"
+        "Some <span style='color: #50ce63;'>quick</span> tips:\n"
+        "- Each widget can be enabled/disabled by clicking on its icon in the bottom right corner\n"
+        "- By default, each widget is docked inside the main window, but they can be popped out by dragging its titlebar or clicking the icon to the right of the X\n"
+        "- Widgets can be resized while docked by dragging in the space between them\n"
+        "- While dragging a widget, you can hover over another widget to create a tab group, allowing you to switch between widgets\n\n"
+        "this menu lowkey useless but i wanted to add more random stuff\n";
+
+    textBrowser->setMarkdown(markdownText);
+    popupLayout->addWidget(textBrowser);
+
+    connect(helpButton, &QPushButton::clicked, this, [popup](){
+        popup->show();
+    });
+
+    layout->addStretch();
+    layout->addWidget(helpButton);
+    layout->addStretch();
+
+    addWidget(container,1);
     // addPermanentWidget(latencyHeader);
     // addPermanentWidget(latencyStatus);
 

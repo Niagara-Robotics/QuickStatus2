@@ -257,3 +257,19 @@ QDockWidget::close-button:pressed, QDockWidget::float-button:pressed {
     padding: 4px 6px;
     padding-right: 4px;
 }
+
+#helpButton {
+    border-radius: 4px;
+    padding: 2px 5px;
+    background-color: #11FFFFFF;
+}
+#helpButton::hover {
+    background-color: #22FFFFFF;
+}
+#helpButton::pressed {
+    background-color: #33FFFFFF;
+}
+
+#helpText {
+    background-color: transparent;
+}
