@@ -19,6 +19,8 @@ public:
     NT_Subscriber wideFeederStatusSub;
     NT_Subscriber wideShooterRPSSub;
     NT_Subscriber wideFeederRPSSub;
+    NT_Subscriber hoodAngleSub;
+    NT_Subscriber hoodTargetSub;
     NT_Subscriber targetRPSSub;
     NT_Subscriber manualShooterRPSSub;
     NT_Subscriber driverAssistedModeSub;
@@ -51,6 +53,7 @@ private:
     QFont targetFont;
     QFont shooterFont;
     QFont feederFont;
+    QFont hoodFont;
     QRect targetRect; // Cache the bounding box too!
 
 protected:

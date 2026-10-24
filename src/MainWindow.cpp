@@ -102,7 +102,7 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     QWidget* calibrationContent = calibrationWidget->widget();
     NT_Inst inst = nt::GetDefaultInstance();
     static bool isConnected = false;
-
+    
     QTimer* refreshTimer = new QTimer(this);
     refreshTimer->setTimerType(Qt::CoarseTimer);
     connect(refreshTimer, &QTimer::timeout, this, [this, shiftWidget, shiftContent, swerveWidget, swerveContent, shooterWidget, shooterContent]() {

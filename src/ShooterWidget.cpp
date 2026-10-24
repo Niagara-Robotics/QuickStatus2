@@ -1,10 +1,12 @@
 #include "ShooterWidget.h"
 #include "Constants.h"
 #include <QPainter>
+#include <QtCore/qline.h>
 #include <QtCore/qnamespace.h>
 #include <QtCore/qsize.h>
 #include <QtGui/qcolor.h>
 #include <QtGui/qicon.h>
+#include <QtGui/qpen.h>
 #include <QtGui/qtransform.h>
 #include <QtSvg/qsvgrenderer.h>
 #include <QtWidgets/qlayoutitem.h>
@@ -44,6 +46,7 @@ void ShooterWidget::resizeEvent(QResizeEvent *event) {
     targetFont = QFont("B612", textSize * 0.32, 900);
     shooterFont = QFont("B612 Mono", textSize * 0.4, 100);
     feederFont = QFont("B612 Mono", textSize * 0.3, 100);
+    hoodFont = QFont("B612", textSize * 0.2, 100);
 
     // Compute the bounding box once here
     targetRect = QFontMetrics(targetFont).boundingRect("40 RPS");
@@ -64,12 +67,17 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     double wideShooterRPS = nt::GetDouble(wideShooterRPSSub, -1);
     double manualShooterRPS = nt::GetDouble(manualShooterRPSSub, -1);
 
+    double hoodAngle = nt::GetDouble(hoodAngleSub, -1);
+    double targetAngle = nt::GetDouble(hoodTargetSub, -1);
+
     double wideFeederRPS = nt::GetDouble(wideFeederRPSSub, -1);
 
     bool driverAssistedMode = nt::GetBoolean(driverAssistedModeSub, true);
 
     totalWideFeederRPS += wideFeederRPS;
     totalWideShooterRPS += wideShooterRPS;
+
+    double outlineOffset = -outlineRect.width()*0.2;
 
     // draw RPS text
     
@@ -94,7 +102,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     painter.setFont(shooterFont);
 
     // ## draw shooter ##
-
+    painter.translate(outlineOffset,0);
     if (cachedOutline.isNull()) {
         cachedOutline = createPixmapFromSvg(outline, "#FFFFFF", outlineSize.toSize() * 4);
     }
@@ -116,7 +124,9 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     }
 
     painter.drawPixmap(shooterRect.toRect(), cachedWheel10);
+
     painter.resetTransform();
+    painter.translate(outlineOffset,0);
     
     painter.drawText(shooterRect, Qt::AlignCenter, (wideShooterRPS == -1)? "—": QString::number(round(wideShooterRPS)));
     // render feeder
@@ -145,9 +155,52 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
     // createIconFromSvg(wheel_8, feederColour, shooterSize.toSize()*2).paint(&painter, feederRect.toRect());
     painter.resetTransform();
+    painter.translate(outlineOffset,0);
 
     painter.setFont(feederFont);
     painter.drawText(feederRect, Qt::AlignCenter, (wideFeederRPS == -1)? "—": QString::number(round(wideFeederRPS)));
+
+    // draw hood visual
+
+    painter.translate(-outlineOffset*1.4, 0);
+
+    QPen pen = QPen("#676767");
+    pen.setWidth(textSize/10);
+    pen.setCapStyle(Qt::RoundCap);
+    painter.setPen(pen);
+    painter.drawLine(outlineRect.topRight(),outlineRect.bottomRight());
+
+    // notches
+    painter.setFont(hoodFont);
+    QLineF notchLine = QLineF(
+        QPointF(outlineRect.topRight().x()-(textSize/10.0), outlineRect.topRight().y()), 
+        QPointF(outlineRect.topRight().x(), outlineRect.topRight().y()));
+    for (int i=0; i <= 4; i++) {
+        QLineF translatedLine = notchLine.translated(0,outlineRect.height()*(i/4.0));
+        painter.drawLine(translatedLine);
+        QString text = QString::number((i/4.0)*100) + "%";
+        int textWidth = painter.fontMetrics().horizontalAdvance(text);
+        int textHeight = painter.fontMetrics().height();
+        
+        painter.drawText(translatedLine.translated(-textWidth-(textSize*0.1), textHeight/4.0).p1(), text);
+        
+    }
+    notchLine.setP2(QPointF(outlineRect.topRight().x()+(textSize/10.0), outlineRect.topRight().y()));
+    double hoodAngleWrapped = (hoodAngle > 0.85)
+        ? (0.85 - ((hoodAngle-0.85)*(0.85/0.15)))
+        : hoodAngle;
+    double hoodDiff = abs(hoodAngle - targetAngle);
+    hoodDiff = std::min(hoodDiff, 1.0 - hoodDiff);
+    if (wideShooterStatus == 0) pen.setColor(Constants::NO_STATUS);
+    else pen.setColor((hoodDiff <= 0.02)
+        ? Constants::AT_TARGET
+        : Constants::IN_PROGRESS);
+    painter.setPen(pen);
+
+    if (hoodAngle != -1) painter.drawLine(notchLine.translated(0, outlineRect.height() - outlineRect.height()*(1-hoodAngleWrapped/0.85)));
+
+    // Formula for angles over 0.85: ### (0.85 - ((angle-0.85)*(0.85/0.15))) / 0.85
+    // Formula for angles under/equal 0.85: ### angle / 0.85
 }
 
 ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
@@ -169,6 +222,14 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
 
     wideFeederRPSSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/feederCurrentSpeed"), NT_DOUBLE, "double"
+    );
+
+    hoodAngleSub = nt::Subscribe(nt::GetTopic(
+        inst, "/SmartDashboard/Shooters/Current Angle"), NT_DOUBLE, "double"
+    );
+
+    hoodTargetSub = nt::Subscribe(nt::GetTopic(
+        inst, "/SmartDashboard/Shooters/Target Angle"), NT_DOUBLE, "double"
     );
 
     targetRPSSub = nt::Subscribe(nt::GetTopic(

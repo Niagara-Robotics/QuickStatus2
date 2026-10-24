@@ -5,6 +5,12 @@
 #include "NTPopup.h"
 #include "NTManager.h"
 
+#include <QtCore/qnamespace.h>
+#include <QtCore/qsysinfo.h>
+#include <QtCore/qtdeprecationdefinitions.h>
+#include <QtGlobal>
+#include <QDebug>
+
 void NTPopup::cancelAction() {
     close();
 }
@@ -44,7 +50,7 @@ void NTPopup::applyAction() {
 NTPopup::NTPopup(QWidget* parent, StatusBar* statusBar):QDialog(parent) {
     reportTo = statusBar;
     setWindowFlag(Qt::WindowType::WindowStaysOnTopHint);
-    setWindowFlag(Qt::WindowType::SubWindow);
+    if (QSysInfo::productType() != "macos") setWindowFlag(Qt::SubWindow);
     
     setWindowModality(Qt::WindowModality::ApplicationModal);
     // setFixedSize(300,150);
