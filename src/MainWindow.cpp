@@ -62,12 +62,12 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
 MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     setMinimumSize(480,480);
     
-    QLayout* dockLayout = new QGridLayout();
-    QWidget* dockContainerWidget = new QWidget();
-    dockContainerWidget->setObjectName("containerTest");
-    dockContainerWidget->setMaximumSize(0,0);
-    dockContainerWidget->setLayout(dockLayout);
-    dockLayout->setContentsMargins(0,0,0,0);
+    //QLayout* dockLayout = new QGridLayout();
+    //QWidget* dockContainerWidget = new QWidget();
+    //dockContainerWidget->setObjectName("containerTest");
+    //dockContainerWidget->setMaximumSize(0,0);
+    //dockContainerWidget->setLayout(dockLayout);
+    //dockLayout->setContentsMargins(0,0,0,0);
     // setCentralWidget(dockContainerWidget);
     setDockNestingEnabled(true);
     setContentsMargins(10,10,10,10);

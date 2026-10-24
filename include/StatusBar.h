@@ -32,7 +32,6 @@ class StatusBar : public QStatusBar {
 public:
 
     explicit StatusBar(QWidget* parent = nullptr);
-    ~StatusBar() {}
 
     void updateStatus();
     void updateLatency();
@@ -50,8 +49,8 @@ public:
     QLabel* tooltip;
     
 private:
-    QLabel* connectionStatus = new QLabel();
-    QLabel* latencyStatus = new QLabel();
+    QLabel* connectionStatus = nullptr;
+    QLabel* latencyStatus = nullptr;
     std::string connectionColour = "#FF3664";
     std::string connectionText = "Disconnected";
     std::string connectionAddress = "localhost";
