@@ -15,8 +15,6 @@ void NTPopup::cancelAction() {
     close();
 }
 void NTPopup::typeChange() {
-    auto type = addressTypeChooser->currentText();
-    settings.setValue("ntType", type);
     typeUpdate();
 }
 void NTPopup::typeUpdate() {
@@ -41,6 +39,8 @@ void NTPopup::resetAction() {
     addressTypeChooser->setCurrentText(settings.value("ntType").toString());
 }
 void NTPopup::applyAction() {
+    auto type = addressTypeChooser->currentText();
+    settings.setValue("ntType", type);
     NTManager::UpdateSettings(addressInput->text(), portInput->text().toUInt());
     reportTo->updateStatus();
     close();
