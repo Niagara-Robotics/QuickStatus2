@@ -129,6 +129,9 @@ bool StatusBar::eventFilter(QObject* watched, QEvent* event) {
 }
 
 StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
+    connectionStatus = new QLabel(this);
+    //latencyStatus = new QLabel(this);
+
     // NTPopup* popup = new NTPopup(this, this);
     setObjectName("statusBar");
     setFixedHeight(40);
@@ -162,7 +165,7 @@ StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     addWidget(editButton);
     addWidget(connectionStatus);
 
-    tooltip = new RoundedTooltip("", nullptr); 
+    tooltip = new RoundedTooltip(this);
     tooltip->setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
     tooltip->setAttribute(Qt::WA_ShowWithoutActivating);
     tooltip->setAttribute(Qt::WA_TranslucentBackground);

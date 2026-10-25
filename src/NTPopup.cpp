@@ -23,7 +23,7 @@ void NTPopup::typeUpdate() {
     auto type = addressTypeChooser->currentText();
     if (type == "Address") {
         addressInput->setText(settings.value("ntAddress").toString());
-        addressInput->setValidator(NULL);
+        addressInput->setValidator(nullptr);
     }
     if (type == "Team Number") {
         addressInput->setText(settings.value("ntTeam").toString());
@@ -37,7 +37,6 @@ void NTPopup::resetAction() {
     settings.remove("ntType");
     NTManager::checkSettings();
     addressInput->setText(settings.value("ntAddress").toString());
-    addressInput->setText(settings.value("ntAddress").toString());
     portInput->setText(settings.value("ntPort").toString());
     addressTypeChooser->setCurrentText(settings.value("ntType").toString());
 }
@@ -49,6 +48,7 @@ void NTPopup::applyAction() {
 
 NTPopup::NTPopup(QWidget* parent, StatusBar* statusBar):QDialog(parent) {
     reportTo = statusBar;
+    setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlag(Qt::WindowType::WindowStaysOnTopHint);
     if (QSysInfo::productType() != "macos") setWindowFlag(Qt::SubWindow);
     
