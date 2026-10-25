@@ -77,7 +77,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     totalWideFeederRPS += wideFeederRPS;
     totalWideShooterRPS += wideShooterRPS;
 
-    double outlineOffset = -outlineRect.width()*0.2;
+    double outlineOffset = -outlineRect.width()*0.4;
 
     // draw RPS text
     
@@ -162,7 +162,7 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
     // draw hood visual
 
-    painter.translate(-outlineOffset*1.4, 0);
+    painter.translate(textSize*0.6, 0);
 
     QPen pen = QPen("#676767");
     pen.setWidth(textSize/10);
@@ -184,6 +184,8 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
         
         painter.drawText(translatedLine.translated(-textWidth-(textSize*0.1), textHeight/4.0).p1(), text);
         
+        if (i == 0) painter.drawText(translatedLine.translated((textSize*0.29), textHeight/4.0).p1(), "High");
+        if (i == 4) painter.drawText(translatedLine.translated((textSize*0.29), textHeight/4.0).p1(), "Low");
     }
     notchLine.setP2(QPointF(outlineRect.topRight().x()+(textSize/10.0), outlineRect.topRight().y()));
     double hoodAngleWrapped = (hoodAngle > 0.85)
