@@ -73,6 +73,12 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
             break;
     };
 
+    if (alignColour != cachedColour) {
+        cachedBase = QPixmap();
+        cachedWheel = QPixmap();
+        cachedColour = alignColour;
+    }
+
     int baseSize = fmin(width(), height())*0.5;
     QRect baseRect = rect();
     baseRect.setSize(QSize(baseSize,baseSize));

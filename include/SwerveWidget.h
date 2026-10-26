@@ -31,6 +31,7 @@ private:
     QPixmap createPixmapFromSvg(QSvgRenderer& renderer, const QColor& colour, QSize size);
     QPixmap cachedWheel;
     QPixmap cachedBase;
+    QColor cachedColour;
 protected:
     void paintEvent(QPaintEvent *event);
 };
