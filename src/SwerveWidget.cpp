@@ -24,7 +24,7 @@ float LerpAngleDegrees(float a, float b, float t) {
     return NormalizeAngle(a + diff * t);
 }
 
-QPixmap SwerveWidget::createPixmapFromSvg(QSvgRenderer& renderer, QSize size) {
+QPixmap SwerveWidget::createPixmapFromSvg(QSvgRenderer& renderer, const QColor& colour, QSize size) {
     QPixmap pixmap(size);
     pixmap.fill(Qt::transparent);
 
@@ -32,7 +32,7 @@ QPixmap SwerveWidget::createPixmapFromSvg(QSvgRenderer& renderer, QSize size) {
     renderer.render(&painter);
 
     painter.setCompositionMode(QPainter::CompositionMode_SourceIn); 
-    painter.fillRect(pixmap.rect(), QBrush("#FFFFFF")); 
+    painter.fillRect(pixmap.rect(), QBrush(colour)); 
 
     painter.end();
     return pixmap;
@@ -90,7 +90,7 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
         if (rotArray.empty()) painter.setOpacity(0.5);
         else painter.setOpacity(1);
         if (cachedBase.isNull()) {
-            cachedBase = createPixmapFromSvg(baseRender, QSize(baseSize, baseSize) * 4);
+            cachedBase = createPixmapFromSvg(baseRender, alignColour, QSize(baseSize, baseSize) * 4);
         }
         painter.drawPixmap(baseRect, cachedBase);
 
@@ -138,7 +138,7 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
 
             //draw wheel
             if (cachedWheel.isNull()) {
-                cachedWheel = createPixmapFromSvg(wheelRender, QSize(wheelSize, wheelSize) * 4);
+                cachedWheel = createPixmapFromSvg(wheelRender, alignColour, QSize(wheelSize, wheelSize) * 4);
             }
             painter.drawPixmap(wheelRect.toRect(), cachedWheel);
 

@@ -28,7 +28,7 @@ public:
     QSvgRenderer velocityRender = QSvgRenderer(QString::fromStdString(":/images/swerve/velocity"));
     QSvgRenderer powerRender = QSvgRenderer(QString::fromStdString(":/images/swerve/power"));
 private:
-    QPixmap createPixmapFromSvg(QSvgRenderer& renderer, QSize size);
+    QPixmap createPixmapFromSvg(QSvgRenderer& renderer, const QColor& colour, QSize size);
     QPixmap cachedWheel;
     QPixmap cachedBase;
 protected:
