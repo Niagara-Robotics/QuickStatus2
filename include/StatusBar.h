@@ -34,7 +34,7 @@ public:
     explicit StatusBar(QWidget* parent = nullptr);
 
     void updateStatus();
-    void updateLatency();
+    //void updateLatency();
 
     QPushButton* shooterButton;
     QPushButton* swerveButton;
