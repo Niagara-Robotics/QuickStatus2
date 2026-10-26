@@ -42,16 +42,19 @@ void ShooterWidget::resizeEvent(QResizeEvent *event) {
     outlineRect.setSize(outlineSize);
     outlineRect.adjust(-textSize*0.5,0,-textSize*0.5,0);
 
+    outlineOffset = -outlineRect.width()*0.4;
+
     rpsFont = QFont("B612", textSize, 900);
     targetFont = QFont("B612", textSize * 0.32, 900);
     shooterFont = QFont("B612 Mono", textSize * 0.4, 100);
     feederFont = QFont("B612 Mono", textSize * 0.3, 100);
     hoodFont = QFont("B612", textSize * 0.2, 100);
 
-    // Compute the bounding box once here
-    targetRect = QFontMetrics(targetFont).boundingRect("40 RPS");
+    targetRect = QFontMetrics(rpsFont).boundingRect("40 RPS");
     targetRect.moveCenter(rpsRect.center());
     targetRect.adjust(0, -textSize * 0.3, 0, 0);
+
+    cachedOutline = createPixmapFromSvg(outline, "#FFFFFF", outlineSize.toSize() * 4);
 }
 
 void ShooterWidget::paintEvent(QPaintEvent *event) {
@@ -77,8 +80,6 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     totalWideFeederRPS += wideFeederRPS;
     totalWideShooterRPS += wideShooterRPS;
 
-    double outlineOffset = -outlineRect.width()*0.4;
-
     // draw RPS text
     
     QString rpsText;
@@ -91,10 +92,6 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     painter.setFont(rpsFont);
     painter.drawText(rpsRect, Qt::AlignCenter, rpsText);
 
-    QRect targetRect = QFontMetrics(painter.font()).boundingRect("40 RPS");
-    targetRect.moveCenter(rpsRect.center());
-    targetRect.adjust(0, -textSize*0.3, 0, 0);
-
     painter.setFont(targetFont);
     painter.drawText(targetRect, Qt::AlignTop, "Target");
     
@@ -103,9 +100,6 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 
     // ## draw shooter ##
     painter.translate(outlineOffset,0);
-    if (cachedOutline.isNull()) {
-        cachedOutline = createPixmapFromSvg(outline, "#FFFFFF", outlineSize.toSize() * 4);
-    }
     painter.drawPixmap(outlineRect.toRect(), cachedOutline);
     
     QColor shooterColour = getStatusColour(wideShooterStatus);
@@ -213,7 +207,6 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
     wideShooterStatusSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/Shooters/shooterStatus"), NT_INTEGER, "int"
     );
-
     wideFeederStatusSub = nt::Subscribe(nt::GetTopic(
         inst, "/SmartDashboard/feederStatus"), NT_INTEGER, "int"
     );

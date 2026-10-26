@@ -18,7 +18,7 @@ public:
 
     void setupNT();
     void buttonClicked(std::string value);
-    void categoryChanged(std::string value);
+    void categoryChanged(QString value);
     void updateButtons();
     void removeButtons();
     void openPopup();

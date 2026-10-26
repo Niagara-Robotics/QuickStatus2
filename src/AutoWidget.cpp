@@ -101,14 +101,15 @@ void AutoWidget::buttonClicked(std::string value) {
     nt::SetString(selectionPub, value);
 }
 
-void AutoWidget::categoryChanged(std::string value) {
+void AutoWidget::categoryChanged(QString value) {
     for (QAbstractButton* button : buttons.buttons()) {
         QString originalText = button->windowIconText();
         button->setVisible(
-            originalText.startsWith(QString::fromStdString(value) + " ") ||
+            originalText.startsWith(value + " ") ||
             originalText == "None"
         );
     }
+    settings.setValue("autoCategory", value);
 }
 
 void AutoWidget::removeButtons() {
@@ -138,8 +139,8 @@ void AutoWidget::updateButtons() {
         else buttonOrder[5].push_back(option);
         i++;
     }
-    for (std::vector<std::string> order : buttonOrder) {
-        for (std::string option : order) {
+    for (const std::vector<std::string>& order : buttonOrder) {
+        for (const std::string option : order) {
             QRadioButton* button = new QRadioButton(QString::fromStdString(option), this);
             if (active == option) button->setChecked(true);
             std::string text = button->text().toStdString();
@@ -161,7 +162,7 @@ void AutoWidget::updateButtons() {
         }
     }
     noAutos->setVisible(options.empty());
-    categoryChanged(categories.checkedButton()->windowIconText().toStdString());
+    categoryChanged(categories.checkedButton()->windowIconText());
 }
 
 void AutoWidget::openPopup() {
@@ -209,9 +210,11 @@ AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
         QAbstractButton* button = categories.buttons()[i];
         button->setObjectName("categoryButton");
         button->setWindowIconText(categoryIds[i]);
-        button->setChecked(i==0);
+        QString category = button->windowIconText();
 
-        std::string category = button->windowIconText().toStdString();
+        if (settings.value("autoCategory").isValid()) button->setChecked(settings.value("autoCategory").toString() == category);
+        else button->setChecked(i==0);
+
         connect(button, &QRadioButton::clicked, this, [this, category]() {
             categoryChanged(category);
         });

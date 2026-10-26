@@ -27,4 +27,5 @@ public:
 protected:
     void resizeEvent(QResizeEvent* event);
     void updateText();
+    void resized();
 };

@@ -47,10 +47,14 @@ void ControlModeWidget::updateText() {
     )));
 }
 
-void ControlModeWidget::resizeEvent(QResizeEvent* event) {
+void ControlModeWidget::resized() {
     double sizeRatio = (double)width()/height();
     layout->setDirection((sizeRatio > 2)? QBoxLayout::LeftToRight: QBoxLayout::TopToBottom);
     updateText();
+}
+
+void ControlModeWidget::resizeEvent(QResizeEvent* event) {
+    resized();
 }
 
 ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
@@ -121,4 +125,7 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
             );
         }
     );
+    QTimer::singleShot(0, this, [this](){
+        resized();
+    });
 }

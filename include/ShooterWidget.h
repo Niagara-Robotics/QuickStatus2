@@ -48,6 +48,7 @@ private:
     QPixmap cachedOutline;
     int lastShooterStatus = -2; // track changes to regenerate color
     int lastFeederStatus = -2;
+    double outlineOffset;
 
     QFont rpsFont;
     QFont targetFont;
