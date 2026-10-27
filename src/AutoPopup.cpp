@@ -36,6 +36,7 @@ void AutoPopup::checkTables() {
 
 AutoPopup::AutoPopup(QWidget* parent, AutoWidget* autoWidget):QDialog(parent) {
     reportTo = autoWidget;
+    setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlag(Qt::WindowType::WindowStaysOnTopHint);
     if (QSysInfo::productType() != "macos") setWindowFlag(Qt::SubWindow);
     setWindowModality(Qt::WindowModality::ApplicationModal);
