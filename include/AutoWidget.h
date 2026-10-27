@@ -5,8 +5,9 @@
 #include <QSettings>
 #include <QPushButton>
 #include <QButtonGroup>
-#include <QtWidgets/qwidget.h>
-#include <ntcore.h>
+#include "networktables/IntegerTopic.h"
+#include "networktables/StringArrayTopic.h"
+#include "networktables/StringTopic.h"
 
 class AutoWidget : public QWidget {
     Q_OBJECT
@@ -23,12 +24,13 @@ public:
     void removeButtons();
     void openPopup();
     void updateMatch();
-    NT_Inst inst;
-    NT_Subscriber optionsSub;
-    NT_Subscriber activeSub;
-    NT_Subscriber defaultSub;
-    NT_Subscriber matchNumberSub;
-    NT_Publisher selectionPub;
+
+    nt::StringArraySubscriber optionsSub;
+    nt::StringSubscriber activeSub;
+    nt::StringSubscriber defaultSub;
+    nt::IntegerSubscriber matchNumberSub;
+    nt::StringPublisher selectionPub;
+
     QButtonGroup buttons;
     QButtonGroup categories;
     QVBoxLayout* layout;

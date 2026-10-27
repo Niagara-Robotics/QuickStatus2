@@ -1,15 +1,8 @@
-#include <QFormLayout>
-#include <QPushButton>
-
 #include "StatusBar.h"
 #include "NTPopup.h"
 #include "NTManager.h"
 
-#include <QtCore/qnamespace.h>
-#include <QtCore/qsysinfo.h>
-#include <QtCore/qtdeprecationdefinitions.h>
-#include <QtGlobal>
-#include <QDebug>
+#include <QFormLayout>
 
 void NTPopup::cancelAction() {
     close();
@@ -41,7 +34,7 @@ void NTPopup::resetAction() {
 void NTPopup::applyAction() {
     auto type = addressTypeChooser->currentText();
     settings.setValue("ntType", type);
-    NTManager::UpdateSettings(addressInput->text(), portInput->text().toUInt());
+    NTManager::updateSettings(addressInput->text(), portInput->text().toUInt());
     reportTo->updateStatus();
     close();
 }

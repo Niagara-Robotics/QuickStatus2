@@ -3,7 +3,6 @@
 #include <QCompleter>
 
 #include "AutoPopup.h"
-#include <frc/DriverStation.h>
 
 void AutoPopup::cancelAction() {
     close();

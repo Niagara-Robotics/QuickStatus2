@@ -1,10 +1,6 @@
 #include "SpacerWidget.h"
-#include <QtCore/qnamespace.h>
-#include <QtCore/qsize.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qgridlayout.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qsizepolicy.h>
+#include <QBoxLayout>
+#include <QLabel>
 SpacerWidget::SpacerWidget(QWidget* parent):QWidget(parent) {
     setWindowTitle("Spacer");
     QLabel* chinese = new QLabel("瘋狂的油", this);

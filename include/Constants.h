@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QtGui/qcolor.h>
-#include <QtGui/qicon.h>
+#include <QColor>
+#include <QIcon>
 
 namespace Constants {
     static const QColor NO_STATUS = QColor("#FFFFFF");

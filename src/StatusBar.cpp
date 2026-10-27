@@ -1,19 +1,12 @@
-#include <QSettings>
-#include <QPushButton>
-#include <QtCore/qnamespace.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qdialog.h>
-#include <QtWidgets/qmessagebox.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/qwidget.h>
+#include "StatusBar.h"
+#include "NTPopup.h"
+
+#include <QBoxLayout>
 #include <QEvent>
-#include <QMessageBox>
 #include <QTextBrowser>
 
 #include "networktables/NetworkTableInstance.h"
 
-#include "StatusBar.h"
-#include "NTPopup.h"
 
 void StatusBar::ConnectionListenerCallback(nt::Event event) {
     if (event.Is(nt::EventFlags::kConnected)) {
@@ -225,18 +218,11 @@ StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     // addPermanentWidget(latencyHeader);
     // addPermanentWidget(latencyStatus);
 
-    auto inst = nt::NetworkTableInstance::GetDefault();
+    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
     NT_Listener listener = inst.AddConnectionListener(
         true,
         [this](const nt::Event& event) {
             this->StatusBar::ConnectionListenerCallback(event);
         }
     );
-
-    // refreshTimer.setParent(this);
-    // refreshTimer.setTimerType(Qt::PreciseTimer);
-    // connect(&refreshTimer, &QTimer::timeout, this, &StatusBar::updateLatency);
-    // refreshTimer.start(500);
-
-    // nt::GetServerTimeOffset(nt::GetDefaultInstance());
 }

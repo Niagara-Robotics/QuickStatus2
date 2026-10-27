@@ -1,11 +1,10 @@
 #pragma once
 
+#include "networktables/BooleanTopic.h"
+#include "networktables/DoubleTopic.h"
+#include "networktables/IntegerTopic.h"
 #include <QWidget>
-#include <QTimer>
 #include <QSvgRenderer>
-#include <QtGui/qpixmap.h>
-#include <QtWidgets/qwidget.h>
-#include <ntcore.h>
 
 class ShooterWidget : public QWidget {
     Q_OBJECT
@@ -14,16 +13,20 @@ public:
 
     explicit ShooterWidget(QWidget* parent = nullptr);
     ~ShooterWidget() {}
-    NT_Inst inst;
-    NT_Subscriber wideShooterStatusSub;
-    NT_Subscriber wideFeederStatusSub;
-    NT_Subscriber wideShooterRPSSub;
-    NT_Subscriber wideFeederRPSSub;
-    NT_Subscriber hoodAngleSub;
-    NT_Subscriber hoodTargetSub;
-    NT_Subscriber targetRPSSub;
-    NT_Subscriber manualShooterRPSSub;
-    NT_Subscriber driverAssistedModeSub;
+
+    nt::IntegerSubscriber wideShooterStatusSub;
+    nt::IntegerSubscriber wideFeederStatusSub;
+
+    nt::DoubleSubscriber targetRPSSub;
+    nt::DoubleSubscriber manualShooterRPSSub;
+    nt::DoubleSubscriber wideShooterRPSSub;
+    nt::DoubleSubscriber wideFeederRPSSub;
+
+    nt::DoubleSubscriber hoodAngleSub;
+    nt::DoubleSubscriber hoodTargetSub;
+    
+    nt::BooleanSubscriber driverAssistedModeSub;
+
     QSvgRenderer wheel_10 = QSvgRenderer(QString::fromStdString(":/images/shooter/wheel_10"));
     QSvgRenderer wheel_8 = QSvgRenderer(QString::fromStdString(":/images/shooter/wheel_8"));
     QSvgRenderer outline = QSvgRenderer(QString::fromStdString(":/images/shooter/outline"));

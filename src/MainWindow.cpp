@@ -1,8 +1,6 @@
-#include <QGridLayout>
 #include <QSettings>
 #include <QEvent>
-#include <QtWidgets/qdockwidget.h>
-#include <QtWidgets/qpushbutton.h>
+#include <QTimer>
 
 #include "MainWindow.h"
 #include "AutoWidget.h"
@@ -100,7 +98,8 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     QWidget* swerveContent = swerveWidget->widget();
     QWidget* shooterContent = shooterWidget->widget();
     QWidget* calibrationContent = calibrationWidget->widget();
-    NT_Inst inst = nt::GetDefaultInstance();
+
+    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
     static bool isConnected = false;
     
     QTimer* refreshTimer = new QTimer(this);
@@ -117,7 +116,7 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     lessImportantTimer->setTimerType(Qt::CoarseTimer);
     
     connect(lessImportantTimer, &QTimer::timeout, this, [this, inst, calibrationWidget, calibrationContent]() {
-        isConnected = nt::IsConnected(inst);
+        isConnected = inst.IsConnected();
         if (calibrationWidget->isVisible()) calibrationContent->update();
     });
     lessImportantTimer->start(500);

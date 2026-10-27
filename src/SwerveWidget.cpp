@@ -1,7 +1,6 @@
 #include "SwerveWidget.h"
 #include "Constants.h"
 #include <QPainter>
-#include <QtSvg/qsvgrenderer.h>
 
 float NormalizeAngle(float angle) {
     angle = std::fmod(angle, 360.0f);
@@ -50,16 +49,16 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
     painter.setRenderHint(QPainter::LosslessImageRendering);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
-    auto rotArray = nt::GetDoubleArray(baseRotSub, std::span<double>());
+    std::vector<double> rotArray = baseRotSub.Get();
     double currentBaseRot = (!rotArray.empty())? rotArray[2]: 0;
     currentBaseRot = LerpAngleDegrees(lastBaseRot, currentBaseRot, 0.4);// maybe makes it look less like garbage
     lastBaseRot = currentBaseRot;
 
-    auto wheelPosStruct = wheelPosStructSub.Get();
-    auto wheelVelocityStruct = wheelVelocityStructSub.Get();
-    auto wheelPowerStruct = wheelPowerStructSub.Get();
+    std::vector<frc::SwerveModulePosition> wheelPosStruct = wheelPosStructSub.Get();
+    std::vector<frc::SwerveModuleState> wheelVelocityStruct = wheelVelocityStructSub.Get();
+    std::vector<frc::SwerveModuleState> wheelPowerStruct = wheelPowerStructSub.Get();
 
-    int alignStatus = nt::GetInteger(alignStatusSub, 0);
+    int alignStatus = alignStatusSub.Get();
     QColor alignColour;
     switch (alignStatus) {
         case 1:
@@ -150,22 +149,14 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
 SwerveWidget::SwerveWidget(QWidget* parent):QWidget(parent) {
     setWindowTitle("Swerve");
 
-    inst = nt::GetDefaultInstance();
+    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
+    baseRotSub = inst.GetDoubleArrayTopic("/Pose/robotPose").Subscribe(std::vector<double>());
+    alignStatusSub = inst.GetIntegerTopic("/SmartDashboard/alignStatus").Subscribe(-1);
     
-    baseRotSub = nt::Subscribe(nt::GetTopic(
-        inst, "/Pose/robotPose"), NT_DOUBLE_ARRAY, "double[]"
-    );
-    altInst = nt::NetworkTableInstance::GetDefault();
-    wheelPosStructSub = altInst.GetStructArrayTopic<frc::SwerveModulePosition>(
-        "/DriveState/ModulePositions"
-    ).Subscribe({});
-    wheelVelocityStructSub = altInst.GetStructArrayTopic<frc::SwerveModuleState>(
+    wheelPosStructSub = inst.GetStructArrayTopic<frc::SwerveModulePosition>("/DriveState/ModulePositions").Subscribe({});
+    wheelVelocityStructSub = inst.GetStructArrayTopic<frc::SwerveModuleState>(
         "/DriveState/ModuleStates"
     ).Subscribe({});
-    wheelPowerStructSub = altInst.GetStructArrayTopic<frc::SwerveModuleState>(
-        "/DriveState/ModuleTargets"
-    ).Subscribe({});
-    alignStatusSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/alignStatus"), NT_INTEGER, "int"
-    );
+    wheelPowerStructSub = inst.GetStructArrayTopic<frc::SwerveModuleState>(
+        "/DriveState/ModuleTargets" ).Subscribe({});
 }

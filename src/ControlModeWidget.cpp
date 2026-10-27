@@ -1,34 +1,27 @@
 #include "ControlModeWidget.h"
 #include "Constants.h"
+#include <QTimer>
 #include "networktables/NetworkTableInstance.h"
-#include "ntcore_c.h"
-#include "ntcore_cpp.h"
-#include <QtGui/qpainter.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qformlayout.h>
-#include <QtWidgets/qgridlayout.h>
-#include <QtWidgets/qlayout.h>
-#include <QtWidgets/qwidget.h>
 
 void ControlModeWidget::updateText() {
-    bool driverAssistedMode = nt::GetBoolean(driverAssistedModeSub, true);
-    bool operatorAssistedMode = nt::GetBoolean(operatorAssistedModeSub, true);
+    bool driverAssistedMode = driverAssistedModeSub.Get();
+    bool isFieldCentric = fieldCentricSub.Get();
     std::string driverAssistedText;
-    std::string operatorAssistedText;
+    std::string fieldCentricText;
     std::string driverColour;
     std::string operatorColour;
-    if (nt::GetTopicExists(driverAssistedModeSub)) {
+    if (driverAssistedModeSub.Exists()) {
         driverAssistedText = (driverAssistedMode)? "Assisted": "Manual";
         driverColour = (((driverAssistedMode)? Constants::AT_TARGET.name(): Constants::IN_PROGRESS.name())).toStdString();
     } else {
         driverAssistedText = "—";
         driverColour = "#55FFFFFF";
     }
-    if (nt::GetTopicExists(operatorAssistedModeSub)) {
-        operatorAssistedText = (operatorAssistedMode)? "Field": "Robot";
-        operatorColour = (((operatorAssistedMode)? Constants::AT_TARGET.name(): Constants::IN_PROGRESS.name())).toStdString();
+    if (fieldCentricSub.Exists()) {
+        fieldCentricText = (isFieldCentric)? "Field": "Robot";
+        operatorColour = (((isFieldCentric)? Constants::AT_TARGET.name(): Constants::IN_PROGRESS.name())).toStdString();
     } else {
-        operatorAssistedText = "—";
+        fieldCentricText = "—";
         operatorColour = "#55FFFFFF";
     }
     
@@ -43,7 +36,7 @@ void ControlModeWidget::updateText() {
     operatorLabel->setText(QString::fromStdString(fmt::format(
             "<span style='font-size: {}px; font-weight: 100;'>Drive Centric</span><br>"
             "<span style='font-size: {}px; color: {};'>{}</span>",
-            pointSize/2, pointSize, operatorColour, operatorAssistedText
+            pointSize/2, pointSize, operatorColour, fieldCentricText
     )));
 }
 
@@ -68,21 +61,15 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
     driverLabel->setFont(QFont("B612", 16, 900));
     operatorLabel->setFont(QFont("B612", 16, 900));
 
-    inst = nt::GetDefaultInstance();
+    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
 
-    driverAssistedModeSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/driverAssistedMode"), NT_BOOLEAN, "boolean"
-    );
-    operatorAssistedModeSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/isFieldCentric"), NT_BOOLEAN, "boolean"
-    );
+    driverAssistedModeSub = inst.GetBooleanTopic("/SmartDashboard/driverAssistedMode").Subscribe(true);
+    fieldCentricSub = inst.GetBooleanTopic("/SmartDashboard/isFieldCentric").Subscribe(true);
 
     // pain();
 
-    nt::NetworkTableInstance listenerInst = nt::NetworkTableInstance::GetDefault();
-
-    NT_Listener driverUpdateListener = listenerInst.AddListener(
-        listenerInst.GetTopic("/SmartDashboard/driverAssistedMode"),
+    NT_Listener driverUpdateListener = inst.AddListener(
+        inst.GetTopic("/SmartDashboard/driverAssistedMode"),
         nt::EventFlags::kValueAll,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
@@ -92,8 +79,8 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
             );
         }
     );
-    NT_Listener driverDisconnectListener = listenerInst.AddListener(
-        listenerInst.GetTopic("/SmartDashboard/driverAssistedMode"),
+    NT_Listener driverDisconnectListener = inst.AddListener(
+        inst.GetTopic("/SmartDashboard/driverAssistedMode"),
         nt::EventFlags::kUnpublish,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
@@ -103,8 +90,8 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
             );
         }
     );
-    NT_Listener operatorUpdateListener = listenerInst.AddListener(
-        listenerInst.GetTopic("/SmartDashboard/isFieldCentric"),
+    NT_Listener operatorUpdateListener = inst.AddListener(
+        inst.GetTopic("/SmartDashboard/isFieldCentric"),
         nt::EventFlags::kValueAll,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
@@ -114,8 +101,8 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
             );
         }
     );
-    NT_Listener operatorDisconnectListener = listenerInst.AddListener(
-        listenerInst.GetTopic("/SmartDashboard/isFieldCentric"),
+    NT_Listener operatorDisconnectListener = inst.AddListener(
+        inst.GetTopic("/SmartDashboard/isFieldCentric"),
         nt::EventFlags::kUnpublish,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
@@ -125,7 +112,5 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
             );
         }
     );
-    QTimer::singleShot(0, this, [this](){
-        resized();
-    });
+    QTimer::singleShot(0, this, [this](){resized();});
 }

@@ -1,16 +1,7 @@
 #include "ShooterWidget.h"
 #include "Constants.h"
 #include <QPainter>
-#include <QtCore/qline.h>
-#include <QtCore/qnamespace.h>
-#include <QtCore/qsize.h>
-#include <QtGui/qcolor.h>
-#include <QtGui/qicon.h>
-#include <QtGui/qpen.h>
-#include <QtGui/qtransform.h>
-#include <QtSvg/qsvgrenderer.h>
-#include <QtWidgets/qlayoutitem.h>
-#include <QtWidgets/qwidget.h>
+#include "networktables/NetworkTableInstance.h"
 
 QPixmap ShooterWidget::createPixmapFromSvg(QSvgRenderer& renderer, const QColor& color, QSize size) {
     QPixmap pixmap(size);
@@ -62,20 +53,20 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::LosslessImageRendering);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    int wideShooterStatus = wideShooterStatusSub.Get();
+    int wideFeederStatus = wideFeederStatusSub.Get();
     
-    int wideShooterStatus = nt::GetInteger(wideShooterStatusSub, -1);
-    int wideFeederStatus = nt::GetInteger(wideFeederStatusSub, -1);
-    
-    double targetRPS = nt::GetDouble(targetRPSSub, -1);
-    double wideShooterRPS = nt::GetDouble(wideShooterRPSSub, -1);
-    double manualShooterRPS = nt::GetDouble(manualShooterRPSSub, -1);
+    double targetRPS = targetRPSSub.Get();
+    double wideShooterRPS = wideShooterRPSSub.Get();
+    double manualShooterRPS = manualShooterRPSSub.Get();
 
-    double hoodAngle = nt::GetDouble(hoodAngleSub, -1);
-    double targetAngle = nt::GetDouble(hoodTargetSub, -1);
+    double hoodAngle = hoodAngleSub.Get();
+    double targetAngle = hoodTargetSub.Get();
 
-    double wideFeederRPS = nt::GetDouble(wideFeederRPSSub, -1);
+    double wideFeederRPS = wideFeederRPSSub.Get();
 
-    bool driverAssistedMode = nt::GetBoolean(driverAssistedModeSub, true);
+    bool driverAssistedMode = driverAssistedModeSub.Get();
 
     totalWideFeederRPS += wideFeederRPS;
     totalWideShooterRPS += wideShooterRPS;
@@ -202,38 +193,18 @@ void ShooterWidget::paintEvent(QPaintEvent *event) {
 ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
     setWindowTitle("Shooter");
 
-    inst = nt::GetDefaultInstance();
+    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
+    std::shared_ptr<nt::NetworkTable> smartDashboard = inst.GetTable("SmartDashboard");
+    wideShooterStatusSub = smartDashboard->GetIntegerTopic("Shooters/shooterStatus").Subscribe(-1);
+    wideFeederStatusSub = smartDashboard->GetIntegerTopic("Shooters/feederStatus").Subscribe(-1);
+    
+    targetRPSSub = smartDashboard->GetDoubleTopic("Shooters/Target RPS").Subscribe(-1);
+    manualShooterRPSSub = smartDashboard->GetDoubleTopic("manualShooterRPS").Subscribe(-1);
+    wideShooterRPSSub = smartDashboard->GetDoubleTopic("Shooters/Shooter RPS").Subscribe(-1);
+    wideFeederRPSSub = smartDashboard->GetDoubleTopic("feederCurrentSpeed").Subscribe(-1);
 
-    wideShooterStatusSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/Shooters/shooterStatus"), NT_INTEGER, "int"
-    );
-    wideFeederStatusSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/feederStatus"), NT_INTEGER, "int"
-    );
+    hoodAngleSub = smartDashboard->GetDoubleTopic("Shooters/Current Angle").Subscribe(-1);
+    hoodTargetSub = smartDashboard->GetDoubleTopic("Shooters/Targer Angle").Subscribe(-1);
 
-    wideShooterRPSSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/Shooters/Shooter RPS"), NT_DOUBLE, "double"
-    );
-
-    wideFeederRPSSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/feederCurrentSpeed"), NT_DOUBLE, "double"
-    );
-
-    hoodAngleSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/Shooters/Current Angle"), NT_DOUBLE, "double"
-    );
-
-    hoodTargetSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/Shooters/Target Angle"), NT_DOUBLE, "double"
-    );
-
-    targetRPSSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/Shooters/Target RPS"), NT_DOUBLE, "double"
-    );
-    manualShooterRPSSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/manualShooterRPS"), NT_DOUBLE, "double"
-    );
-    driverAssistedModeSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/driverAssistedMode"), NT_BOOLEAN, "boolean"
-    );
+    driverAssistedModeSub = smartDashboard->GetBooleanTopic("driverAssistedMode").Subscribe(-1);
 }

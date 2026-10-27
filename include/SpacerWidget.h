@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QtWidgets/qwidget.h>
+#include <QWidget>
 
 class SpacerWidget : public QWidget {
     Q_OBJECT

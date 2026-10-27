@@ -1,12 +1,11 @@
 #pragma once
 
+#include "ntcore_cpp.h"
 #include <QStatusBar>
-#include <QTimer>
 #include <QLabel>
 #include <QPainter>
 #include <QStyleOption>
 #include <QPushButton>
-#include <ntcore.h>
 
 class RoundedTooltip : public QLabel {
 public:
@@ -34,7 +33,7 @@ public:
     explicit StatusBar(QWidget* parent = nullptr);
 
     void updateStatus();
-    void updateLatency();
+    // void updateLatency();
 
     QPushButton* shooterButton;
     QPushButton* swerveButton;
@@ -58,8 +57,6 @@ private:
     bool connectionState = false;
     void ConnectionListenerCallback(nt::Event event);
     void openPopup();
-
-    QTimer refreshTimer;
 
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;

@@ -1,21 +1,17 @@
-#include <QLabel>
+#include "ShiftWidget.h"
 #include <QGridLayout>
 #include <QPainter>
-
-#include <cmath>
-#include <cstddef>
 #include <frc/Timer.h>
+#include "networktables/NetworkTableInstance.h"
 
-#include "ShiftWidget.h"
-
-ShiftWidget::Shift ShiftWidget::GetCurrentAlliance() {
-    if (! nt::GetTopicExists(isRedSub)) return Shift::NONE;
-    bool isRedAlliance = nt::GetBoolean(isRedSub, false);
+ShiftWidget::Shift ShiftWidget::getCurrentAlliance() {
+    if (!isRedSub.Exists()) return Shift::NONE;
+    bool isRedAlliance = isRedSub.Get();
     Shift alliance = (isRedAlliance == true)? Shift::RED: Shift::BLUE;
     return alliance;
 }
 
-ShiftWidget::Shift ShiftWidget::GetActiveAlliance() {
+ShiftWidget::Shift ShiftWidget::getActiveAlliance() {
     if (matchTimeLeft <= 20 && robotState == "auto") return Shift::ALL;
     if (matchTimeLeft == -1 || matchTimeLeft > 140 || autoWinnerString == "") return Shift::NONE;
     if (matchTimeLeft > 130 || matchTimeLeft <= 30) return Shift::ALL; // all active
@@ -25,7 +21,7 @@ ShiftWidget::Shift ShiftWidget::GetActiveAlliance() {
     else return (autoWinnerString == "R")? Shift::BLUE: Shift::RED; // return loser
 }
 
-std::string ShiftWidget::GetCurrentShiftString() {
+std::string ShiftWidget::getCurrentShiftString() {
     if (matchTimeLeft == -1) return "";
     if (matchTimeLeft <= 20 && robotState == "auto") return "Auto";
     if (matchTimeLeft > 130) return "Transition";
@@ -33,14 +29,14 @@ std::string ShiftWidget::GetCurrentShiftString() {
     else return "End Game";
 }
 
-double ShiftWidget::GetShiftTime() {
+double ShiftWidget::getShiftTime() {
     if (matchTimeLeft == -1) return -1;
     if (matchTimeLeft > 130) return matchTimeLeft - 130;
     else if (matchTimeLeft > 30) return - fmod(6-matchTimeLeft, 25)+1;
     else return matchTimeLeft;
 }
 
-double ShiftWidget::GetShiftTimeMax() {
+double ShiftWidget::getShiftTimeMax() {
     if (matchTimeLeft == -1) return -1;
     if (matchTimeLeft <= 20 && robotState == "auto") return 20;
     if (matchTimeLeft > 130) return 10;
@@ -48,43 +44,27 @@ double ShiftWidget::GetShiftTimeMax() {
     else return 30;
 }
 
-void ShiftWidget::SetupNT() {
-    inst = nt::GetDefaultInstance();
-    matchTimeSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/matchTime"), NT_DOUBLE, "double"
-    );
-    gameMessageSub = nt::Subscribe(nt::GetTopic(
-        inst, "/FMSInfo/GameSpecificMessage"), NT_STRING, "string"
-    );
-    isRedSub = nt::Subscribe(nt::GetTopic(
-        inst, "/FMSInfo/IsRedAlliance"), NT_BOOLEAN, "boolean"
-    );
-    robotStateSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/robotState"), NT_STRING, "string"
-    );
-}
-
-double ShiftWidget::GetMatchTimeLeft() {
-    double matchTime = nt::GetDouble(matchTimeSub, -1);
+double ShiftWidget::getMatchTimeLeft() {
+    double matchTime = matchTimeSub.Get();
     return (matchTime<=0)? -1: ceil(matchTime);
 }
 
 void ShiftWidget::paintEvent(QPaintEvent* event) {  
-    robotState = nt::GetString(robotStateSub, "");
-    matchTimeLeft = GetMatchTimeLeft();
+    robotState = robotStateSub.Get();
+    matchTimeLeft = getMatchTimeLeft();
     double blinkClock = frc::GetTime().value();
     double blinkSpeed = 3;
     double minSize = fmin(timerLabel->width(), timerLabel->height())*1.1;
     bool isBlinkVisible = (fmod(blinkClock*blinkSpeed, 1) > 0.5);
     if (matchTimeLeft != lastMatchTimeLeft) {
         lastUpdateTime = frc::GetTime().value();
-        activeAlliance = GetActiveAlliance();
-        currentAlliance = GetCurrentAlliance();
-        autoWinnerString = nt::GetString(gameMessageSub, "");
+        activeAlliance = getActiveAlliance();
+        currentAlliance = getCurrentAlliance();
+        autoWinnerString = gameMessageSub.Get();
     } else if (matchTimeLeft == -1) {
         shiftTime = -1;
     }
-    shiftTime = GetShiftTime();
+    shiftTime = getShiftTime();
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::LosslessImageRendering);
@@ -111,7 +91,7 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     painter.setFont(QFont("B612", pointSize*0.4, 900));
     if (activeAlliance == Shift::ALL || (activeAlliance == currentAlliance && activeAlliance != Shift::NONE)) painter.drawText(activeRect, Qt::AlignCenter, "ACTIVE");
     activeRect.setTop(pointSize*2);
-    painter.drawText(activeRect, Qt::AlignCenter, QString::fromStdString(GetCurrentShiftString()));
+    painter.drawText(activeRect, Qt::AlignCenter, QString::fromStdString(getCurrentShiftString()));
 
     int arcSize = minSize * 0.8;
 
@@ -144,7 +124,7 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
             allianceColour = "#77FFFFFF";
     }
     
-    if (matchTimeLeft != lastMatchTimeLeft) shiftTimeMax = GetShiftTimeMax();
+    if (matchTimeLeft != lastMatchTimeLeft) shiftTimeMax = getShiftTimeMax();
     int startAngle = 90;
     double interpolateMod = blinkClock - lastUpdateTime;
     int spanAngle = (shiftTime-interpolateMod)/shiftTimeMax * 360 * 16;
@@ -166,12 +146,16 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
 ShiftWidget::ShiftWidget(QWidget* parent):QWidget(parent) {
     setWindowTitle("Alliance Shifts");
 
-    SetupNT();
-
     QGridLayout* layout = new QGridLayout(this);
     layout->addWidget(timerLabel);
     setLayout(layout);
 
     timerLabel->setFont(QFont("B612 Mono"));
     timerLabel->setAlignment(Qt::AlignCenter);
+
+    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
+    matchTimeSub = inst.GetDoubleTopic("/SmartDashboard/matchTime").Subscribe(-1);
+    gameMessageSub = inst.GetStringTopic("/FMSInfo/GameSpecificMessage").Subscribe("");
+    isRedSub = inst.GetBooleanTopic("/FMSInfo/IsRedAlliance").Subscribe(false);
+    robotStateSub = inst.GetStringTopic("/SmartDashboard/robotState").Subscribe("");
 }

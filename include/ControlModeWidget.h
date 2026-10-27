@@ -1,13 +1,8 @@
 #pragma once
 
-#include <QWidget>
-#include <QTimer>
-#include <QSvgRenderer>
-#include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qgridlayout.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qwidget.h>
-#include <ntcore.h>
+#include <QBoxLayout>
+#include <QLabel>
+#include "networktables/BooleanTopic.h"
 
 class ControlModeWidget : public QWidget {
     Q_OBJECT
@@ -16,9 +11,9 @@ public:
 
     explicit ControlModeWidget(QWidget* parent = nullptr);
     ~ControlModeWidget() {}
-    NT_Inst inst;
-    NT_Subscriber driverAssistedModeSub;
-    NT_Subscriber operatorAssistedModeSub;
+
+    nt::BooleanSubscriber driverAssistedModeSub;
+    nt::BooleanSubscriber fieldCentricSub;
 
     QLabel* driverLabel = new QLabel();
     QLabel* operatorLabel = new QLabel();

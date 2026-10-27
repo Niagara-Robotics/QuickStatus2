@@ -1,15 +1,13 @@
 #include <QSettings>
-#include <ntcore.h>
 #include "NTManager.h"
-#include "ntcore_cpp.h"
 
-void NTManager::UpdateSettings(QVariant address, uint port) {
+void NTManager::updateSettings(QVariant address, uint port) {
     QSettings settings;
     auto type = settings.value("ntType").toString();
     if (type == "Address") settings.setValue("ntAddress", address);
     if (type == "Team Number") settings.setValue("ntTeam", address);
     settings.setValue("ntPort", port);
-    RefreshServer();
+    refreshServer();
 }
 
 void NTManager::checkSettings() {
@@ -20,10 +18,8 @@ void NTManager::checkSettings() {
     if (!settings.contains("ntType")) settings.setValue("ntType", "Address");
 }
 
-void NTManager::RefreshServer() {
-    NT_Inst inst = nt::GetDefaultInstance();
-
-    nt::Disconnect(nt::GetDefaultInstance());
+void NTManager::refreshServer() {
+    inst.Disconnect();
 
     checkSettings();
     QSettings settings;
@@ -38,24 +34,22 @@ void NTManager::RefreshServer() {
         std::string rioIP = 
             "10." + std::to_string(teamNum / 100) + "." + 
             std::to_string(teamNum % 100) + ".2";
-        nt::SetServer(
-            inst,
+        inst.SetServer(
             rioIP.c_str(),
             settings.value("ntPort").toUInt()
         );
 
     } else {
-        nt::SetServer(
-            inst,
+        inst.SetServer(
             settings.value("ntAddress").toString().toStdString(),
             settings.value("ntPort").toUInt()
         );
     }
 }
 
-void NTManager::StartClient() {
-    RefreshServer();
-    nt::StartClient4(nt::GetDefaultInstance(), "QuickStatus2");
+void NTManager::startClient() {
+    refreshServer();
+    inst.StartClient4("QuickStatus2");
 }
 
 NTManager::NTManager() {
@@ -63,5 +57,5 @@ NTManager::NTManager() {
 }
 
 NTManager::~NTManager() {
-    nt::StopClient(nt::GetDefaultInstance());
+    inst.StopClient();
 }

@@ -1,10 +1,11 @@
 #pragma once
 
+#include "networktables/DoubleArrayTopic.h"
+#include "networktables/IntegerTopic.h"
+#include "networktables/StructArrayTopic.h"
 #include "frc/kinematics/SwerveModuleState.h"
-#include <frc/kinematics/SwerveModulePosition.h>
-#include <networktables/StructArrayTopic.h>
+#include "frc/kinematics/SwerveModulePosition.h"
 #include <QWidget>
-#include <QTimer>
 #include <QSvgRenderer>
 
 class SwerveWidget : public QWidget {
@@ -14,13 +15,11 @@ public:
 
     explicit SwerveWidget(QWidget* parent = nullptr);
     ~SwerveWidget() {}
-    NT_Inst inst;
-    nt::NetworkTableInstance altInst;
-    NT_Subscriber baseRotSub;
+    nt::DoubleArraySubscriber baseRotSub;
     nt::StructArraySubscriber<frc::SwerveModulePosition> wheelPosStructSub;
     nt::StructArraySubscriber<frc::SwerveModuleState> wheelVelocityStructSub;
     nt::StructArraySubscriber<frc::SwerveModuleState> wheelPowerStructSub;
-    NT_Subscriber alignStatusSub;
+    nt::IntegerSubscriber alignStatusSub;
     double wheelRots[4];
     double lastBaseRot;
     QSvgRenderer baseRender = QSvgRenderer(QString::fromStdString(":/images/swerve/base"));

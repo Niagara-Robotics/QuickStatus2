@@ -1,54 +1,28 @@
 #include <QRadioButton>
 #include <QTimer>
-#include <QtCore/qhashfunctions.h>
-#include <QtCore/qnamespace.h>
-#include <QtWidgets/qabstractbutton.h>
-#include <QtWidgets/qgridlayout.h>
-#include <QtWidgets/qlayoutitem.h>
-#include <QtWidgets/qradiobutton.h>
-#include <QtWidgets/qwidget.h>
-#include <string>
-#include <vector>
 #include "AutoWidget.h"
 #include "AutoPopup.h"
-#include "ntcore_c.h"
-#include "ntcore_cpp.h"
-#include "ntcore_cpp_types.h"
+#include "networktables/NetworkTableInstance.h"
 
 void AutoWidget::setupNT() {
     QString autoName = (settings.value("autoChooser").toString());
     currentLabel.setText(QString::fromStdString("Current Auto Group: ") + autoName);
     currentLabel.adjustSize();
 
-    nt::Unsubscribe(optionsSub);
-    nt::Unsubscribe(activeSub);
-    nt::Unsubscribe(defaultSub);
-    nt::Unpublish(selectionPub);
-
-    inst = nt::GetDefaultInstance();
+    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
     std::string autoPath = "/SmartDashboard/" + autoName.toStdString() + "/";
-    optionsSub = nt::Subscribe(
-        nt::GetTopic(inst,  autoPath + "options"), 
-        NT_STRING_ARRAY, "string[]");
-    activeSub = nt::Subscribe(
-        nt::GetTopic(inst, autoPath + "active"), 
-        NT_STRING, "string");
-    defaultSub = nt::Subscribe(
-        nt::GetTopic(inst, autoPath + "default"), 
-        NT_STRING, "string");
-    matchNumberSub = nt::Subscribe(
-        nt::GetTopic(inst, "/FMSInfo/MatchNumber"),
-        NT_INTEGER, "int");
-    selectionPub = nt::Publish(
-        nt::GetTopic(inst, autoPath + "selected"),
-        NT_STRING, "string");
-    
-    auto listenerInst = nt::NetworkTableInstance::GetDefault();
-    listenerInst.RemoveListener(updateListener);
-    listenerInst.RemoveListener(disconnectListener);
 
-    updateListener = listenerInst.AddListener(
-        listenerInst.GetTopic(autoPath + "active"),
+    optionsSub = inst.GetStringArrayTopic(autoPath+"options").Subscribe(std::vector<std::string>());
+    activeSub = inst.GetStringTopic(autoPath+"active").Subscribe("");
+    defaultSub = inst.GetStringTopic(autoPath+"default").Subscribe("");
+    matchNumberSub = inst.GetIntegerTopic("/FMSInfo/MatchNumber").Subscribe(0);
+    selectionPub = inst.GetStringTopic(autoPath+"selected").Publish();
+    
+    inst.RemoveListener(updateListener);
+    inst.RemoveListener(disconnectListener);
+
+    updateListener = inst.AddListener(
+        inst.GetTopic(autoPath + "active"),
         nt::EventFlags::kValueAll,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
@@ -59,8 +33,8 @@ void AutoWidget::setupNT() {
         }
     );
 
-    disconnectListener = listenerInst.AddListener(
-        listenerInst.GetTopic(autoPath + "options"),
+    disconnectListener = inst.AddListener(
+        inst.GetTopic(autoPath + "options"),
         nt::EventFlags::kUnpublish,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
@@ -71,8 +45,8 @@ void AutoWidget::setupNT() {
         }
     );
 
-    listenerInst.AddListener(
-        listenerInst.GetTopic("/FMSInfo/MatchNumber"),
+    inst.AddListener(
+        inst.GetTopic("/FMSInfo/MatchNumber"),
         nt::EventFlags::kValueAll,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
@@ -88,17 +62,17 @@ void AutoWidget::setupNT() {
 
 void AutoWidget::updateMatch() {
     QSettings settings;
-    int currentMatch = nt::GetInteger(matchNumberSub, 0);
+    int currentMatch = matchNumberSub.Get();
     int lastMatch = settings.value("lastMatch").toInt();
     if (currentMatch != lastMatch) {
-        buttonClicked(nt::GetString(defaultSub, ""));
+        buttonClicked(defaultSub.Get());
         updateButtons();
     }
     settings.setValue("lastMatch", currentMatch);
 }
 
 void AutoWidget::buttonClicked(std::string value) {
-    nt::SetString(selectionPub, value);
+    selectionPub.Set(value);
 }
 
 void AutoWidget::categoryChanged(QString value) {
@@ -120,9 +94,9 @@ void AutoWidget::removeButtons() {
 }
 
 void AutoWidget::updateButtons() {
-    std::string active = nt::GetString(activeSub, "");
-    std::string defaultSelected = nt::GetString(defaultSub, "");
-    std::vector<std::string> options = nt::GetStringArray(optionsSub, std::span<std::string>());
+    std::string active = activeSub.Get();
+    std::string defaultSelected = defaultSub.Get();
+    std::vector<std::string> options = optionsSub.Get();
     std::vector<std::string> buttonOrder[6];
     removeButtons();
     int i = 0;
@@ -236,7 +210,6 @@ AutoWidget::AutoWidget(QWidget* parent):QWidget(parent) {
 
     // updateButtons();
 
+    // for some reason, fixes formatting issue
     QTimer::singleShot(0, this, &AutoWidget::setupNT);
-
-
 }

@@ -1,11 +1,7 @@
 #include "CalibrationWidget.h"
 #include "Constants.h"
-#include "ntcore_cpp_types.h"
-#include <QtCore/qnamespace.h>
-#include <QtGui/qcolor.h>
-#include <QtGui/qpainter.h>
-#include <QtGui/qtextoption.h>
-#include <QtGui/qwindowdefs.h>
+#include <QPainter>
+#include "networktables/NetworkTableInstance.h"
 
 void CalibrationWidget::resizeEvent(QResizeEvent* event) {
     widgetSize = fmin(width(), height()) * 0.3;
@@ -16,11 +12,11 @@ void CalibrationWidget::paintEvent(QPaintEvent* event) {
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::LosslessImageRendering);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
-    int tagCount = nt::GetInteger(tagCountSub, -1);
-    double tagDist = nt::GetDouble(tagDistSub, -1);
+    int tagCount = tagCountSub.Get();
+    double tagDist = tagDistSub.Get();
     tagDist = round(tagDist*100.0)/100.0;
-    bool isGyroCalibrated = nt::GetBoolean(gyroCalibratedSub, false);
-    bool manualCalibrated = nt::GetBoolean(manualCalibratedSub, false);
+    bool isGyroCalibrated = gyroCalibratedSub.Get();
+    bool manualCalibrated = manualCalibratedSub.Get();
     
     painter.setPen(QPen(QColor("#FFFFFF"), widgetSize*0.1, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
     painter.setBrush(QColor("#000000"));
@@ -68,17 +64,9 @@ void CalibrationWidget::paintEvent(QPaintEvent* event) {
 CalibrationWidget::CalibrationWidget(QWidget* parent):QWidget(parent) {
     setWindowTitle("Calibration");
     
-    inst = nt::GetDefaultInstance();
-    tagCountSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/calibrationTags"), NT_INTEGER, "int"
-    );
-    tagDistSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/calibrationDist"), NT_DOUBLE, "double"
-    );
-    gyroCalibratedSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/isGyroCalibrated"), NT_BOOLEAN, "boolean"
-    );
-    manualCalibratedSub = nt::Subscribe(nt::GetTopic(
-        inst, "/SmartDashboard/manualCalibratoin"), NT_BOOLEAN, "boolean"
-    );
+    nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
+    tagCountSub = inst.GetIntegerTopic("/SmartDashboard/calibrationTags").Subscribe(-1);
+    tagDistSub = inst.GetDoubleTopic("/SmartDashboard/calibrationDist").Subscribe(-1);
+    gyroCalibratedSub = inst.GetBooleanTopic("/SmartDashboard/isGyroCalibrated").Subscribe(false);
+    manualCalibratedSub = inst.GetBooleanTopic("/SmartDashboard/manualCalibration").Subscribe(false);
 }

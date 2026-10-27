@@ -1,9 +1,9 @@
 #pragma once
 
-#include <QWidget>
+#include "networktables/BooleanTopic.h"
+#include "networktables/DoubleTopic.h"
+#include "networktables/StringTopic.h"
 #include <QLabel>
-#include <QTimer>
-#include <ntcore.h>
 
 class ShiftWidget : public QWidget {
     Q_OBJECT
@@ -22,20 +22,19 @@ public:
         ALL
     };
 
-    double GetMatchTimeLeft();
-    double GetShiftTime();
-    double GetShiftTimeMax();
-    Shift GetCurrentAlliance();
-    std::string GetCurrentShiftString();
-    std::string GetAutoWinnerString();
-    Shift GetActiveAlliance();
-    void SetupNT();
-    void doThing(); //testing
-    NT_Inst inst;
-    NT_Subscriber matchTimeSub;
-    NT_Subscriber gameMessageSub;
-    NT_Subscriber isRedSub;
-    NT_Subscriber robotStateSub;
+    double getMatchTimeLeft();
+    double getShiftTime();
+    double getShiftTimeMax();
+    Shift getCurrentAlliance();
+    std::string getCurrentShiftString();
+    std::string getAutoWinnerString();
+    Shift getActiveAlliance();
+
+    nt::DoubleSubscriber matchTimeSub;
+    nt::StringSubscriber gameMessageSub;
+    nt::BooleanSubscriber isRedSub;
+    nt::StringSubscriber robotStateSub;
+
     QLabel* timerLabel = new QLabel();
 
 private:

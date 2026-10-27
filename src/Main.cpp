@@ -1,5 +1,4 @@
 #include <QApplication>
-#include <QFile>
 #include <QFontDatabase>
 #include <QDirIterator>
 
@@ -36,7 +35,7 @@ int main(int argc, char* argv[]) {
     mainWindow.setWindowTitle("QuickStatus 2.1.7");
     mainWindow.setWindowIcon(QIcon(":/icon.ico"));
 
-    NTManager::StartClient();
+    NTManager::startClient();
 
     return app.exec();
 }
