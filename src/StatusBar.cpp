@@ -191,7 +191,7 @@ StatusBar::StatusBar(QWidget* parent):QStatusBar(parent) {
     textBrowser->setObjectName("helpText");
     
     QString markdownText = 
-        "# QuickStatus 2.1.8\n"
+        "# QuickStatus " QUICKSTATUS_VERSION "\n"
         // "You can use **bold text**, *italics*, or `inline code` easily.\n\n"
         "Some <span style='color: #50ce63;'>quick</span> tips:\n"
         "- Each widget can be enabled/disabled by clicking on its icon in the bottom right corner\n"

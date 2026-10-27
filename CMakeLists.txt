@@ -47,6 +47,8 @@ qt_add_executable(QuickStatus2
 
 target_include_directories(QuickStatus2 PRIVATE include src)
 
+target_compile_definitions(QuickStatus2 PRIVATE QUICKSTATUS_VERSION="${PROJECT_VERSION}")
+
 target_include_directories(QuickStatus2 PRIVATE
     ${WPILIB_CPP}/include/wpimath
     ${WPILIB_CPP}/include/wpilibc
