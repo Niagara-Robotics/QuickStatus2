@@ -25,14 +25,14 @@ void ControlModeWidget::updateText() {
         operatorColour = "#55FFFFFF";
     }
     
-    float pointSize = std::min((double)driverLabel->width()/2, (double)driverLabel->height())/2;
+    float pointSize = std::min(static_cast<double>(driverLabel->width())/2, static_cast<double>(driverLabel->height()))/2;
     driverLabel->setText(QString::fromStdString(fmt::format(
             "<span style='font-size: {}px; font-weight: 100;'>Driver</span><br>"
             "<span style='font-size: {}px; color: {};'>{}</span>",
             pointSize/2, pointSize, driverColour, driverAssistedText
     )));
 
-    pointSize = std::min((double)operatorLabel->width()/2, (double)operatorLabel->height())/2;
+    pointSize = std::min(static_cast<double>(operatorLabel->width())/2, static_cast<double>(operatorLabel->height()))/2;
     operatorLabel->setText(QString::fromStdString(fmt::format(
             "<span style='font-size: {}px; font-weight: 100;'>Drive Centric</span><br>"
             "<span style='font-size: {}px; color: {};'>{}</span>",
@@ -41,7 +41,7 @@ void ControlModeWidget::updateText() {
 }
 
 void ControlModeWidget::resized() {
-    double sizeRatio = (double)width()/height();
+    double sizeRatio = static_cast<double>(width())/height();
     layout->setDirection((sizeRatio > 2)? QBoxLayout::LeftToRight: QBoxLayout::TopToBottom);
     updateText();
 }
