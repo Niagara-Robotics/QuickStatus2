@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     }
 
     mainWindow.show();
-    mainWindow.setWindowTitle("QuickStatus 2.1.7");
+    mainWindow.setWindowTitle("QuickStatus 2.1.8");
     mainWindow.setWindowIcon(QIcon(":/icon.ico"));
 
     NTManager::startClient();

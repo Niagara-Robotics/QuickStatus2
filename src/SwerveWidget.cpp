@@ -59,18 +59,7 @@ void SwerveWidget::paintEvent(QPaintEvent *event) {
     std::vector<frc::SwerveModuleState> wheelPowerStruct = wheelPowerStructSub.Get();
 
     int alignStatus = alignStatusSub.Get();
-    QColor alignColour;
-    switch (alignStatus) {
-        case 1:
-            alignColour = Constants::IN_PROGRESS;
-            break;
-        case 2:
-            alignColour = Constants::AT_TARGET;
-            break;
-        default:
-            alignColour = Constants::NO_STATUS;
-            break;
-    };
+    QColor alignColour = getStatusColour(alignStatus);
 
     if (alignColour != cachedColour) {
         cachedBase = QPixmap();

@@ -196,7 +196,7 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
     nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
     std::shared_ptr<nt::NetworkTable> smartDashboard = inst.GetTable("SmartDashboard");
     wideShooterStatusSub = smartDashboard->GetIntegerTopic("Shooters/shooterStatus").Subscribe(-1);
-    wideFeederStatusSub = smartDashboard->GetIntegerTopic("Shooters/feederStatus").Subscribe(-1);
+    wideFeederStatusSub = smartDashboard->GetIntegerTopic("feederStatus").Subscribe(-1);
     
     targetRPSSub = smartDashboard->GetDoubleTopic("Shooters/Target RPS").Subscribe(-1);
     manualShooterRPSSub = smartDashboard->GetDoubleTopic("manualShooterRPS").Subscribe(-1);
@@ -204,7 +204,7 @@ ShooterWidget::ShooterWidget(QWidget* parent):QWidget(parent) {
     wideFeederRPSSub = smartDashboard->GetDoubleTopic("feederCurrentSpeed").Subscribe(-1);
 
     hoodAngleSub = smartDashboard->GetDoubleTopic("Shooters/Current Angle").Subscribe(-1);
-    hoodTargetSub = smartDashboard->GetDoubleTopic("Shooters/Targer Angle").Subscribe(-1);
+    hoodTargetSub = smartDashboard->GetDoubleTopic("Shooters/Target Angle").Subscribe(-1);
 
     driverAssistedModeSub = smartDashboard->GetBooleanTopic("driverAssistedMode").Subscribe(-1);
 }
