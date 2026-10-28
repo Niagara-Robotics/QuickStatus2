@@ -58,9 +58,9 @@ void ShiftWidget::paintEvent(QPaintEvent* event) {
     bool isBlinkVisible = (fmod(blinkClock*blinkSpeed, 1) > 0.5);
     if (matchTimeLeft != lastMatchTimeLeft) {
         lastUpdateTime = frc::GetTime().value();
+        autoWinnerString = gameMessageSub.Get();
         activeAlliance = getActiveAlliance();
         currentAlliance = getCurrentAlliance();
-        autoWinnerString = gameMessageSub.Get();
     } else if (matchTimeLeft == -1) {
         shiftTime = -1;
     }
