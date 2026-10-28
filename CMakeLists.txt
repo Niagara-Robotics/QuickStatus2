@@ -8,7 +8,7 @@ set(CMAKE_AUTORCC ON)
 
 set(WPILIB_CPP "${CMAKE_CURRENT_SOURCE_DIR}/wpicpp")
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Svg)
+find_package(Qt6 6.9 REQUIRED COMPONENTS Widgets Svg)
 
 qt_standard_project_setup()
 
