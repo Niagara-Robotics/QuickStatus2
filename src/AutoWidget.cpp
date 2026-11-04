@@ -20,6 +20,7 @@ void AutoWidget::setupNT() {
     
     inst.RemoveListener(updateListener);
     inst.RemoveListener(disconnectListener);
+    inst.RemoveListener(matchListener);
 
     updateListener = inst.AddListener(
         inst.GetTopic(autoPath + "active"),
@@ -45,7 +46,7 @@ void AutoWidget::setupNT() {
         }
     );
 
-    inst.AddListener(
+    matchListener = inst.AddListener(
         inst.GetTopic("/FMSInfo/MatchNumber"),
         nt::EventFlags::kValueAll,
         [this](const nt::Event&) {
