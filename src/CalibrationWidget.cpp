@@ -69,4 +69,19 @@ CalibrationWidget::CalibrationWidget(QWidget* parent):QWidget(parent) {
     tagDistSub = inst.GetDoubleTopic("/SmartDashboard/calibrationDist").Subscribe(-1);
     gyroCalibratedSub = inst.GetBooleanTopic("/SmartDashboard/isGyroCalibrated").Subscribe(false);
     manualCalibratedSub = inst.GetBooleanTopic("/SmartDashboard/manualCalibration").Subscribe(false);
+
+    NT_Listener updateListener = inst.AddListener(
+        std::span<const std::string_view>({
+            tagCountSub.GetTopic().GetName(),
+            tagDistSub.GetTopic().GetName(),
+            gyroCalibratedSub.GetTopic().GetName(),
+            manualCalibratedSub.GetTopic().GetName(),
+        }),
+        nt::EventFlags::kValueAll | nt::EventFlags::kUnpublish,
+        [this](const nt::Event&)-> void {
+            QMetaObject::invokeMethod(this, [this]() {
+                update();
+            }, Qt::QueuedConnection);
+        }
+    );
 }

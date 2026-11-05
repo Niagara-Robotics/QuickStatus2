@@ -59,14 +59,6 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
 
 MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
     setMinimumSize(480,480);
-    
-    //QLayout* dockLayout = new QGridLayout();
-    //QWidget* dockContainerWidget = new QWidget();
-    //dockContainerWidget->setObjectName("containerTest");
-    //dockContainerWidget->setMaximumSize(0,0);
-    //dockContainerWidget->setLayout(dockLayout);
-    //dockLayout->setContentsMargins(0,0,0,0);
-    // setCentralWidget(dockContainerWidget);
     setDockNestingEnabled(true);
     setContentsMargins(10,10,10,10);
     setAutoFillBackground(true);
@@ -77,54 +69,49 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
 
     QTimer::singleShot(0, this, &MainWindow::restoreApplicationState);
 
-    QDockWidget* shiftWidget = createNewWidget(new ShiftWidget(this));
-    QDockWidget* autoWidget = createNewWidget(new AutoWidget(this));
-    QDockWidget* swerveWidget = createNewWidget(new SwerveWidget(this));
-    QDockWidget* shooterWidget = createNewWidget(new ShooterWidget(this));
-    QDockWidget* controlModeWidget = createNewWidget(new ControlModeWidget(this));
-    QDockWidget* driveSpacer = createNewWidget(new SpacerWidget(this));
-    QDockWidget* calibrationWidget = createNewWidget(new CalibrationWidget(this));
-    QList<QDockWidget*> dockWidgets = {
-        shiftWidget, 
-        autoWidget, 
-        swerveWidget, 
-        shooterWidget, 
-        controlModeWidget, 
-        driveSpacer, 
-        calibrationWidget
-    };
+    ShiftWidget* shiftWidget = new ShiftWidget(this);
+    SwerveWidget* swerveWidget = new SwerveWidget(this);
+    ShooterWidget* shooterWidget = new ShooterWidget(this);
 
-    QWidget* shiftContent = shiftWidget->widget();
-    QWidget* swerveContent = swerveWidget->widget();
-    QWidget* shooterContent = shooterWidget->widget();
-    QWidget* calibrationContent = calibrationWidget->widget();
+    QDockWidget* shiftDock = createNewWidget(shiftWidget);
+    QDockWidget* autoDock = createNewWidget(new AutoWidget(this));
+    QDockWidget* swerveDock = createNewWidget(swerveWidget);
+    QDockWidget* shooterDock = createNewWidget(shooterWidget);
+    QDockWidget* controlModeDock = createNewWidget(new ControlModeWidget(this));
+    QDockWidget* spacerDock = createNewWidget(new SpacerWidget(this));
+    QDockWidget* calibrationDock = createNewWidget(new CalibrationWidget(this));
+    QList<QDockWidget*> dockWidgets = {
+        shiftDock, 
+        autoDock, 
+        swerveDock, 
+        shooterDock, 
+        controlModeDock, 
+        spacerDock, 
+        calibrationDock
+    };
 
     nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
     static bool isConnected = false;
     
     QTimer* refreshTimer = new QTimer(this);
     refreshTimer->setTimerType(Qt::CoarseTimer);
-    connect(refreshTimer, &QTimer::timeout, this, [this, shiftWidget, shiftContent, swerveWidget, swerveContent, shooterWidget, shooterContent]() {
+    connect(refreshTimer, &QTimer::timeout, this, [this, shiftWidget, shiftDock, swerveWidget, swerveDock, shooterWidget, shooterDock]() {
         if (!isConnected) return;
-        if (shiftWidget->isVisible()) shiftContent->update();
-        if (swerveWidget->isVisible()) swerveContent->update();
-        if (shooterWidget->isVisible()) shooterContent->update();
+        if (shiftDock->isVisible()) shiftWidget->update();
+        if (swerveDock->isVisible()) swerveWidget->update();
+        if (shooterDock->isVisible()) shooterWidget->update();
     });
     refreshTimer->start(33);
 
     QTimer* lessImportantTimer = new QTimer(this);
     lessImportantTimer->setTimerType(Qt::CoarseTimer);
-    
-    connect(lessImportantTimer, &QTimer::timeout, this, [this, inst, calibrationWidget, calibrationContent]() {
+    connect(lessImportantTimer, &QTimer::timeout, this, [this, inst]() {
         isConnected = inst.IsConnected();
-        if (calibrationWidget->isVisible()) calibrationContent->update();
     });
     lessImportantTimer->start(500);
-
     
-    for (QDockWidget* dockWidget : dockWidgets) {
-        dockWidget->installEventFilter(this);
-    }
+    for (QDockWidget* dockWidget : dockWidgets) dockWidget->installEventFilter(this);
+    
     QTimer::singleShot(0, this, [this, dockWidgets](){
         for (QPushButton* button : statusBar->buttonList) {
             for (QDockWidget* dockWidget : dockWidgets) {
@@ -134,23 +121,20 @@ MainWindow::MainWindow(QWidget* parent):QMainWindow(parent) {
                 // qDebug()<<button->isChecked();
                 for (QDockWidget* dockWidget : dockWidgets) {
                     if (dockWidget->windowTitle() == button->accessibleName()) {
-                        dockWidget->setVisible(button->isChecked());
+                        dockWidget->setVisible(button->isChecked()); // Make window visible/invisible
                     };
                 }
-                // Make window visible/invisible
             });
         }
     });
 }
 
-void MainWindow::restoreApplicationState()
-{
+void MainWindow::restoreApplicationState() {
     QSettings settings;
     settings.beginGroup("MainWindow");
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray()); // Restore toolbar/dock state
     settings.endGroup();
-
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {

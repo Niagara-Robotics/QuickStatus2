@@ -3,6 +3,7 @@
 #include "AutoWidget.h"
 #include "AutoPopup.h"
 #include "networktables/NetworkTableInstance.h"
+#include "ntcore_cpp.h"
 
 void AutoWidget::setupNT() {
     QString autoName = (settings.value("autoChooser").toString());
@@ -23,20 +24,11 @@ void AutoWidget::setupNT() {
     inst.RemoveListener(matchListener);
 
     updateListener = inst.AddListener(
-        inst.GetTopic(autoPath + "active"),
-        nt::EventFlags::kValueAll,
-        [this](const nt::Event&) {
-            QMetaObject::invokeMethod(
-                this,
-                &AutoWidget::updateButtons,
-                Qt::QueuedConnection
-            );
-        }
-    );
-
-    disconnectListener = inst.AddListener(
-        inst.GetTopic(autoPath + "options"),
-        nt::EventFlags::kUnpublish,
+        std::span<const std::string_view>({
+            activeSub.GetTopic().GetName(),
+            optionsSub.GetTopic().GetName()
+        }),
+        nt::EventFlags::kValueAll | nt::EventFlags::kUnpublish,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
                 this,

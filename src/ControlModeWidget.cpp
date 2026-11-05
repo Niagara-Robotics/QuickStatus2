@@ -66,44 +66,14 @@ ControlModeWidget::ControlModeWidget(QWidget* parent):QWidget(parent) {
     driverAssistedModeSub = inst.GetBooleanTopic("/SmartDashboard/driverAssistedMode").Subscribe(true);
     fieldCentricSub = inst.GetBooleanTopic("/SmartDashboard/isFieldCentric").Subscribe(true);
 
-    // pain();
+    // notPain()
 
-    NT_Listener driverUpdateListener = inst.AddListener(
-        inst.GetTopic("/SmartDashboard/driverAssistedMode"),
-        nt::EventFlags::kValueAll,
-        [this](const nt::Event&) {
-            QMetaObject::invokeMethod(
-                this,
-                &ControlModeWidget::updateText,
-                Qt::QueuedConnection
-            );
-        }
-    );
-    NT_Listener driverDisconnectListener = inst.AddListener(
-        inst.GetTopic("/SmartDashboard/driverAssistedMode"),
-        nt::EventFlags::kUnpublish,
-        [this](const nt::Event&) {
-            QMetaObject::invokeMethod(
-                this,
-                &ControlModeWidget::updateText,
-                Qt::QueuedConnection
-            );
-        }
-    );
-    NT_Listener operatorUpdateListener = inst.AddListener(
-        inst.GetTopic("/SmartDashboard/isFieldCentric"),
-        nt::EventFlags::kValueAll,
-        [this](const nt::Event&) {
-            QMetaObject::invokeMethod(
-                this,
-                &ControlModeWidget::updateText,
-                Qt::QueuedConnection
-            );
-        }
-    );
-    NT_Listener operatorDisconnectListener = inst.AddListener(
-        inst.GetTopic("/SmartDashboard/isFieldCentric"),
-        nt::EventFlags::kUnpublish,
+    NT_Listener updateListener = inst.AddListener(
+        std::span<const std::string_view>({
+            driverAssistedModeSub.GetTopic().GetName(),
+            fieldCentricSub.GetTopic().GetName()
+        }),
+        nt::EventFlags::kValueAll | nt::EventFlags::kUnpublish,
         [this](const nt::Event&) {
             QMetaObject::invokeMethod(
                 this,
