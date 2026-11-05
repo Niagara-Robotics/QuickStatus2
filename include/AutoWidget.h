@@ -38,8 +38,9 @@ public:
     QSettings settings;
     QPushButton editButton;
     QLabel currentLabel;
-    NT_Listener updateListener;
-    NT_Listener disconnectListener;
+    NT_Listener updateListener = 0;
+    NT_Listener disconnectListener = 0;
+    NT_Listener matchListener = 0;
 protected:
     void resizeEvent(QResizeEvent* event);
 };
