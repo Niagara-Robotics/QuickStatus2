@@ -1,5 +1,6 @@
 #include <QSettings>
 #include "NTManager.h"
+#include <sstream>
 
 void NTManager::updateSettings(QVariant address, uint port) {
     QSettings settings;
