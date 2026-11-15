@@ -33,11 +33,11 @@ void CalibrationWidget::paintEvent(QPaintEvent* event) {
     QTextOption textOption = QTextOption();
     textOption.setAlignment(Qt::AlignCenter);
 
-    painter.drawText(tagRect, QString::number(tagCount), textOption);
+    painter.drawText(tagRect, (tagCount == -1) ? QString("—") : QString::number(tagCount), textOption);
     painter.setFont(QFont("B612", widgetSize*0.35, 900));
 
     textOption.setAlignment(Qt::AlignLeft);
-    painter.drawText(QRect(rect().center().x(), tagCenter.y()-widgetSize*0.1, 1000, widgetSize), QString::number(tagDist)+"m");
+    painter.drawText(QRect(rect().center().x(), tagCenter.y()-widgetSize*0.1, 1000, widgetSize), (tagDist == -1) ? QString("—") : QString::number(tagDist) + "m");
     painter.setPen(QColor("#66FFFFFF"));
     painter.setFont(QFont("B612", widgetSize*0.2, 900));
     painter.drawText(QRect(rect().center().x(), tagCenter.y()-widgetSize*0.4, 1000, widgetSize), "Avg. Dist");
