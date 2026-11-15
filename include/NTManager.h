@@ -11,7 +11,6 @@ public:
     static void updateSettings(QVariant address, uint port);
     static void checkSettings();
     static void startClient();
-    static void test();
     
 private:
     static void refreshServer();

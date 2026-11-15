@@ -46,7 +46,7 @@ AutoPopup::AutoPopup(QWidget* parent, AutoWidget* autoWidget):QDialog(parent) {
     setWindowTitle("Set Chooser Table");
     checkTables();
 
-    QCompleter* completer = new QCompleter(validTables);
+    QCompleter* completer = new QCompleter(validTables, this);
     completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
 
     QSettings settings;

@@ -17,7 +17,6 @@ public:
     QStringList validTables;
     QLineEdit* searchInput;
     nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
-    NT_Listener topicListener;
 
     AutoWidget* reportTo;
 

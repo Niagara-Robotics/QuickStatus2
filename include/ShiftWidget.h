@@ -13,8 +13,6 @@ public:
     explicit ShiftWidget(QWidget* parent = nullptr);
     ~ShiftWidget() {}
 
-    static void shouldUpdate();
-
     enum class Shift {
         NONE,
         RED,
@@ -27,7 +25,6 @@ public:
     double getShiftTimeMax();
     Shift getCurrentAlliance();
     std::string getCurrentShiftString();
-    std::string getAutoWinnerString();
     Shift getActiveAlliance();
 
     nt::DoubleSubscriber matchTimeSub;
