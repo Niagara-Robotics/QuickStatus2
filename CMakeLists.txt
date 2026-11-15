@@ -141,3 +141,11 @@ Version: ${PROJECT_VERSION}
     set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY ON)
     include(CPack)
 endif()
+
+if(UNIX AND NOT APPLE)
+    set(CMAKE_BUILD_RPATH   "${WPILIB_CPP}/lib")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
+    install(DIRECTORY "${WPILIB_CPP}/lib/"
+            DESTINATION lib
+            FILES_MATCHING PATTERN "*.so*")
+endif()
